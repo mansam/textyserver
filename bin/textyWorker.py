@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 from textyserver.resources.user import TextyUser
+from skydrive import api_v5, conf
+from pyshorturl import Googl
 import multiprocessing
 import boto
 import logging
@@ -7,9 +9,8 @@ import signal
 import json
 import skydrive
 import urllib
-from skydrive import api_v5, conf
-from pyshorturl import Googl
 import urllib2
+import os
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
 CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
@@ -66,7 +67,6 @@ class Worker(multiprocessing.Process):
 						if len(results['fileNames']) == 0:
 							pass
 
-
 						# Exactly 1 match found, return the shortened URL
 						elif len(results['fileNames']) == 1:
 							self.log.info(results['fileNames'])
@@ -88,6 +88,7 @@ class Worker(multiprocessing.Process):
 						else:
 							return_msg = "Search returned %d results. Please narrow your search, or text \'disp\' to display all results" % len(results['fileNames'])
 							user.requested_files = results['fileIDs'] #**
+							user.put()
 							
 					# allow selecting from menu of files
 					elif split_txt[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
@@ -109,16 +110,33 @@ class Worker(multiprocessing.Process):
 							return_msg += a
 						user.requested_files = results['file_ids']
 						user.put()
+
+					#Download a file and put it on the user's root SkyDrive directory (me/skydrive)
 					elif split_txt[0] == 'dl' and len(split_txt) == 2:
-						#path = path to the file on the server that it downloaded (maybe user.downloadFile(split_txt[1]))
-						path = '/'
-						sd.put(path, 'me/skydrive')
+						file_name = os.getcwd()+user.phone_number+'.zip' 
+						f = urllib2.urlopen(split_txt[1])
+						data = f.read()
+						with open(file_name, "wb") as code:
+							code.write(data)
+						f.close()
+						sd.put(file_name+'.zip', 'me/skydrive')
+						os.remove(file_name)
+
+					#Get the amount of space the user has left
 					elif split_txt[0] == 'space' and len(split_txt) == 2:
 						ans = sd.get_quota()
 						return_msg = 'You have %f GB availible out of %f GB total' % \
 						    (ans[0]/float(1000000000), ans[1]/float(1000000000))
-						
-							
+
+					#Allow the user to write some notes to their skydrive.  Ex: 'note hotel room is 1609'
+					elif split_txt[0] == 'note' and len(split_txt) == 2:
+						file_name = os.getcwd()+user.phone_number+'.txt' 
+						f = open(file_name, 'w')
+						f.write(split_txt[1])
+						f.close()
+						sd.put(('note.txt', file_name), 'me/skydrive')
+						os.remove(file_name)
+					       							
 					else:
 						return_msg = 'Error: Command not found or incorrectly formated'
 					try:
@@ -131,10 +149,6 @@ class Worker(multiprocessing.Process):
 					self.log.info("Didn't recognize number: %s" % phone_num)
 				
 				self.text_queue.delete_message(msg)
-
-	#Helps a user find a file
-	def findFile(self, searchTerm, user):
-		print 'blah'
 
 	def traverse(self, sd, path, searchTerm):
 		file_names = []
