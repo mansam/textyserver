@@ -22,5 +22,8 @@ class TextyUser(User):
 
 		"""
 		
-		ret = Model.to_dict(self, *args, **kwargs)
+		ret = {}
+		ret["email"] = self.email
+		ret["phone"] = self.phone
+		ret["__id__"] = self.id
 		return ret
