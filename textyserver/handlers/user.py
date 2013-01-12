@@ -80,7 +80,7 @@ def getLiveConnectTokens(auth_code):
 	base_url = "https://login.live.com/oauth20_token.srf"
 	params = {
 		"grant_type" : "authorization_code",
-		"redirect_url" : "https://api.buildanavy.com/user/code",
+		"redirect_url" : "http:/www.buildanavy.com/user/code",
 		"client_id": textyserver.CLIENT_ID,
 		"client_secret": textyserver.CLIENT_SECRET,
 		"code": auth_code,
