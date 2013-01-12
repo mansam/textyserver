@@ -95,7 +95,6 @@ x
 						except:
 							return_msg = "Error: Invalid selection"  
 
-
 					#The search returned a lot of files, and the user requested that they all be displayed
 					#Note that technically the user could skip the 'disp' step, and just 'choose' blindly from the list
 					elif split_txt[0] == 'disp' and len(split_txt) == 1 and len(user.requested_files):
