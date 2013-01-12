@@ -6,8 +6,8 @@ import logging
 
 class Worker(multiprocessing.Process):
 
-	def __init__(self, *args):
-		super(Worker, self).__init__(args)
+	def __init__(self):
+		super(Worker, self).__init__()
 		self.sqs = boto.connect_sqs()
 		self.text_queue = sqs.lookup('texts')
 		self.log = logging.getLogger('texty.workers')
