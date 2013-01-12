@@ -151,6 +151,8 @@ class Worker(multiprocessing.Process):
 		file_name = temp.name
 		temp.write(args)
 		base_name = os.path.splitext(file_name)[0]
+		self.log(base_name)
+		self.log(file_name)
 		sd.put((base_name, file_name), 'me/skydrive')
 		temp.close()
 		return "Wrote note %s to skydrive." % base_name
