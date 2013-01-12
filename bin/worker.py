@@ -48,23 +48,40 @@ class Worker(multiprocessing.Process):
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
-					#user = TextyUser.TextyUser()
 					self.sd.auth_access_token = user.auth_token
 					self.sd.auth_refresh_token = user.refresh_token
 
+					# parse text commands
 					if split_txt[0] == 'get' and len(split_txt) == 2:
 
 						results = self.traverse('me/skydrive', split_txt[1])
 						self.log.info(results)
 
-						#Exactly 1 match found, return the shortened URL
+						# Exactly 1 match found, return the shortened URL
 						if len(results['fileNames']) == 1:
 							self.log.info(results['fileNames'])
 							return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][0])['link'])
 						elif len(results['fileNames']) < 5:
-							return_msg = 'Did you mean:'
+							return_msg = 'Did you mean: '
 							for a in range(len(results['fileNames'])):
 								a = '%d. %s' % (a+1, results['fileNames'][a] + '\n')
+							return_msg = return_msg += a
+							user.requested_files = results['fileIDs']
+							user.put()
+						else:
+							return_msg = "Search returned %d results. Please narrow your search." % len(results['fileNames'])
+					# allow selecting from menu of files
+					elif split_text[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
+						try:
+							selection = int(split_txt[1])
+							if (0 < selection <= len(user.requested_files):
+								return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][selection])['link'])
+							user.requested_files = []
+							user.put()
+						except:
+							return_msg = "Error: Invalid selection"
+
+
 					else:
 						return_msg = 'Error: Command not found or incorrectly formated'
 					try:
