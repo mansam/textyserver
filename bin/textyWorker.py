@@ -86,9 +86,17 @@ class Worker(multiprocessing.Process):
 				self.text_queue.delete_message(msg)
 
 	def download_command(self, sd, user, args):
-		#path = path to the file on the server that it downloaded (maybe user.downloadFile(split_txt[1]))
-		path = '/'
-		sd.put(path, 'me/skydrive')	
+		import tempfile
+
+		split_url = args.split('/') #name it will be given on the skydrive
+		temp = tempfile.NamedTemporaryFile(prefix='note_', dir='/tmp', delete=True)
+		upload_name = split_url[len(split_url)-1]
+		f = urllib2.urlopen(split_txt[1])
+		data = f.read()
+		temp.write(data)
+		sd.put((upload_name, file_name), 'me/skydrive')
+		temp.close()
+		return "Downloaded %s to skydrive." % upload_name
 
 	def shorten_link(self, link):
 		shortener = Googl()
@@ -134,6 +142,17 @@ class Worker(multiprocessing.Process):
 			user.requested_files = results['file_ids']
 			user.put()
 			return return_msg
+
+	def note_command(self, sd, user, args):
+		import tempfile
+		import os
+		temp = tempfile.NamedTemporaryFile(prefix='note_', suffix='.txt', dir='/tmp', delete=True)
+		file_name = temp.name
+		temp.write(split_txt[1])
+		base_name = os.path.splitext(file_name)[0]
+		sd.put((base_name, file_name), 'me/skydrive')
+		temp.close()
+		return "Wrote note %s to skydrive." % base_name
 
 	def generate_menu(self, file_names):
 		menu = 'Enter # of selection: \n'
