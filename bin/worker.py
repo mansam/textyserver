@@ -105,7 +105,7 @@ class Worker(multiprocessing.Process):
 	def traverse(self, sd, path, searchTerm):
 		file_names = []
 		file_ids = []
-		ls = sd.listdir(path)
+		files = sd.listdir(path)
 		for f in files:
 			if f['type'] == 'folder':
 				results_dict = self.traverse(sd, f['id'], searchTerm)
