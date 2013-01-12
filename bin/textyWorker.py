@@ -25,7 +25,7 @@ class Worker(multiprocessing.Process):
 		self.log = logging.getLogger('texty.workers')
 		self.running = True
 
-		VALID_COMMANDS = {
+		self.VALID_COMMANDS = {
 			"find": self.ls_command,
 			"download": self.download_command,
 			"space": self.quota_command,
