@@ -29,7 +29,8 @@ class Worker(multiprocessing.Process):
 			"find": self.ls_command,
 			"download": self.download_command,
 			"space": self.quota_command,
-			"findall": lambda sd, user, args: self.ls_command(sd, user, args, display_more=True) 
+			"findall": lambda sd, user, args: self.ls_command(sd, user, args, display_more=True),
+			"note": self.note_command
 		}	
 
 	def run(self):
