@@ -108,9 +108,8 @@ class Worker(multiprocessing.Process):
 		ls = sd.listdir(path)
 		for a in range(len(ls)):
 			if ls[a]['type'] == u'folder':
-				garbage = self.traverse(ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
+				garbage = self.traverse(sd, ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
 			elif ((ls[a]['name'].lower()).find(searchTerm) != -1) and (ls[a]['type'] == u'file'):
-
 				self.log.info('Appending files found.')
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
