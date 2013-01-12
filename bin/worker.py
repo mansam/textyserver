@@ -8,17 +8,19 @@ import json
 import skydrive
 from skydrive import api_v5, conf
 
+CLIENT_ID = boto.config.get("Skydrive", "client_id")
+CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
 
 class Worker(multiprocessing.Process):
 
-	def __init__(self, client_id, client_secret):
+	def __init__(self):
 		super(Worker, self).__init__()
 
 		#Create and set up the connection to SkyDrive
 		#client_secret and client_id do not change from user to user
 		self.sd = skydrive.api_v5.SkyDriveAPI()
-		self.sd.client_id = client_id
-		self.sd.client_secret = client_secret
+		self.sd.client_id = CLIENT_ID
+		self.sd.client_secret = CLIENT_SECRET
 
 		self.sqs = boto.connect_sqs()
 		self.text_queue = self.sqs.lookup('texts')
@@ -46,7 +48,8 @@ class Worker(multiprocessing.Process):
 					return_msg = 'Error: Command not found or incorrectly formated'
 				try:
 					user = TextyUser.find(phone=phone_num).next()
-					sd.auth_access_token = user.auth_token #also user.refresh_token
+					sd.auth_access_token = user.auth_token
+					sd.auth_refresh_token = user.refresh_token
 
 					#if confirmation code, set the user to active user.is_active = True and user.put()
 					try:
