@@ -63,6 +63,7 @@ class Worker(multiprocessing.Process):
 						self.log.info(results)
 
 						# Exactly 1 match found, return the shortened URL
+
 						if len(results['fileNames']) == 1:
 							self.log.info(results['fileNames'])
 							return_msg = shortener.shorten_url(sd.link(results['fileIDs'][0])['link'])
@@ -70,11 +71,11 @@ class Worker(multiprocessing.Process):
 						#Multiple results found, send them to the user so he/she can pick
 						elif len(results['fileNames']) < DISPLAY_CUTOFF:
 							return_msg = 'Type "choose X" to select:\n'
-							for a in range(len(results['fileNames'])):
-								a = '%d. %s' % (a+1, results['fileNames'][a] + '\n')
+							for a in range(len(results['file_names'])):
+								a = '%d. %s' % (a+1, results['file_names'][a] + '\n')
 								return_msg += a
 							self.log.info(user.requested_files)
-							user.requested_files = results['fileIDs']
+							user.requested_files = results['file_ids']
 							user.put()
 							self.log.info(user.requested_files)
 
@@ -82,13 +83,13 @@ class Worker(multiprocessing.Process):
 						else:
 							return_msg = "Search returned %d results. Please narrow your search, or text \'disp\' to display all results" % len(results['fileNames'])
 							user.requested_files = results['fileIDs'] #**
-
+x
 					# allow selecting from menu of files
 					elif split_txt[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
 						try:
 							selection = int(split_txt[1])
 							if (0 < selection <= len(user.requested_files)):
-								return_msg = shortener.shorten_url(sd.link(results['fileIDs'][selection-1])['link'])
+								return_msg = shortener.shorten_url(sd.link(results['file_ids'][selection-1])['link'])
 							user.requested_files = []
 							user.put()
 						except:
@@ -121,23 +122,26 @@ class Worker(multiprocessing.Process):
 	#Helps a user find a file
 	def findFile(self, searchTerm, user):
 		print 'blah'
-	
 
-	#Traverses the SkyDrive, starting from the location given by path.
-	def traverse(self, sd, path, searchTerm, filesFound = [], filesFoundIDs = []):
-		ls = sd.listdir(path)
-		for a in range(len(ls)):
-			if ls[a]['type'] == u'folder':
-				garbage = self.traverse(sd, ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
-			elif ((ls[a]['name'].lower()).find(searchTerm) != -1) and (ls[a]['type'] == u'file'):
-				self.log.info('Appending files found.')
-				filesFound.append(ls[a]['name'])
-				filesFoundIDs.append(ls[a]['id'])
-				self.log.info(filesFoundIDs)
-		return {'fileNames':filesFound, 'fileIDs':filesFoundIDs}
-
+	def traverse(self, sd, path, searchTerm):
+		file_names = []
+		file_ids = []
+		files = sd.listdir(path)
+		for f in files:
+			if f['type'] == 'folder':
+				results_dict = self.traverse(sd, f['id'], searchTerm)
+				file_names += results_dict["file_names"]
+				file_ids += results_dict["file_ids"]
+			elif f['name'].lower().find(searchTerm) != -1:
+				self.log.info('Found %s.' % f['name'])
+				file_names.append(f['name'])
+				file_ids.append(f['id'])
+		return {'file_names':file_names, 'file_ids': file_ids}
 
 if __name__ == "__main__":
-
-	w = Worker()
-	w.start()
+	workers = []
+	num_workers = boto.config.get("Texty", "number_workers", 1)
+	for i in range(0, num_workers):
+		w = Worker()
+		w.start()
+		workers.append[w]

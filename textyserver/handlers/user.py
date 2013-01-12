@@ -9,6 +9,11 @@ log = logging.getLogger('texty.userHandler')
 
 class UserHandler(RequestHandler):
 
+	def _get(self, request, response, id=None):
+		param = id.split('/')[0]
+		# if param == "code":
+		# 	code = request.params["code"]
+
 	def _post(self, request, response, id=None):
 		response.content_type = "application/json"
 
