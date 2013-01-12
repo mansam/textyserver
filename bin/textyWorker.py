@@ -40,7 +40,8 @@ class Worker(multiprocessing.Process):
 			"findall": lambda sd, user, args: self.ls_command(sd, user, args, display_more=True),
 			"note": self.note_command,
 			"n": self.note_command,
-			"?": self.help_command
+			"?": self.help_command,
+			"help": self.help_command
 		}	
 		
 	def run(self):
@@ -172,7 +173,13 @@ class Worker(multiprocessing.Process):
 		return menu
 
 	def help_command(self, sd, user, args):
-		return "help message"
+		help_msg = """
+			find <files> - get link
+			note <some text> - write note
+			dl <remote file link> - downld file
+			space - get remaining space
+		"""
+		return help_msg
 
 	def traverse(self, sd, path, searchTerm):
 		file_names = []
