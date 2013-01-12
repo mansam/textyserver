@@ -111,7 +111,7 @@ class Worker(multiprocessing.Process):
 				results_dict = self.traverse(sd, f['id'], searchTerm)
 				file_names += results_dict["file_names"]
 				file_ids += results_dict["file_ids"]
-			elif f['name'].lower().find(searchTerm) != 1:
+			elif f['name'].lower().find(searchTerm) != -1:
 				self.log.info('Found %s.' % f['name'])
 				file_names.append(f['name'])
 				file_ids.append(f['id'])
