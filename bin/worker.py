@@ -58,27 +58,27 @@ class Worker(multiprocessing.Process):
 						self.log.info(results)
 
 						# Exactly 1 match found, return the shortened URL
-						if len(results['fileNames']) == 1:
-							self.log.info(results['fileNames'])
-							return_msg = shortener.shorten_url(sd.link(results['fileIDs'][0])['link'])
-						elif len(results['fileNames']) < 5:
+						if len(results['file_names']) == 1:
+							self.log.info(results['file_names'])
+							return_msg = shortener.shorten_url(sd.link(results['file_ids'][0])['link'])
+						elif len(results['file_names']) < 5:
 							return_msg = 'Type "choose X" to select:\n'
-							for a in range(len(results['fileNames'])):
-								a = '%d. %s' % (a+1, results['fileNames'][a] + '\n')
+							for a in range(len(results['file_names'])):
+								a = '%d. %s' % (a+1, results['file_names'][a] + '\n')
 								return_msg += a
 							self.log.info(user.requested_files)
-							user.requested_files = results['fileIDs']
+							user.requested_files = results['file_ids']
 							user.put()
 							self.log.info(user.requested_files)
 						else:
-							return_msg = "Search returned %d results. Please narrow your search." % len(results['fileNames'])
+							return_msg = "Search returned %d results. Please narrow your search." % len(results['file_names'])
 
 					# allow selecting from menu of files
 					elif split_txt[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
 						try:
 							selection = int(split_txt[1])
 							if (0 < selection <= len(user.requested_files)):
-								return_msg = shortener.shorten_url(sd.link(results['fileIDs'][selection-1])['link'])
+								return_msg = shortener.shorten_url(sd.link(results['file_ids'][selection-1])['link'])
 							user.requested_files = []
 							user.put()
 						except:
