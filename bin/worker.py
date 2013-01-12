@@ -118,6 +118,9 @@ class Worker(multiprocessing.Process):
 		return {'file_names':file_names, 'file_ids': file_ids}
 
 if __name__ == "__main__":
-
-	w = Worker()
-	w.start()
+	workers = []
+	num_workers = boto.config.get("Texty", "number_workers", 1)
+	for i in range(0, num_workers):
+		w = Worker()
+		w.start()
+		workers.append[w]
