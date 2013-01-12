@@ -40,7 +40,7 @@ class Worker(multiprocessing.Process):
 				split_txt = txt.split(' ')
 				
 				if split_txt[0] == 'get' and len(split_txt) == 2:
-					results = traverse(split_txt)
+					results = self.traverse(split_txt)
 					if len(results['fileNames']) == 1:
 						return_msg = results['fileNames'][0]
 
@@ -67,7 +67,7 @@ class Worker(multiprocessing.Process):
 
 
 	#Traverses the SkyDrive, starting from the location given by path.
-	def traverse(path):
+	def traverse(self, path):
 		ls = sd.listdir(path)
 		for a in range(len(ls)):
 			if ls[a]['type'] == u'folder':
