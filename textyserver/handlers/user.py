@@ -14,15 +14,15 @@ class UserHandler(RequestHandler):
 		user = createUser(request.params)
 		try:
 			challenge = getChallengeCode()
-		except Exception as e:
+		except Exception:
 			# retry 
-			raise e
+			raise
 
 		try:
 			user.sms(challenge)
-		except Exception as e:
+		except Exception:
 			# deal with twilio errors
-			raise e
+			raise
 
 		response.body = json.dumps(user.to_dict()) 
 		return response
