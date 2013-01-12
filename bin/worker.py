@@ -4,6 +4,7 @@ import multiprocessing
 import boto
 import logging
 import signal
+import json
 
 class Worker(multiprocessing.Process):
 
@@ -20,7 +21,7 @@ class Worker(multiprocessing.Process):
 
 			msg = self.text_queue.read()
 			if msg:
-				body = msg.get_body()
+				body = json.loads(msg.get_body())
 				phone_num = body[0]
 				txt = body[1]
 				try:
