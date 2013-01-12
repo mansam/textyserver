@@ -54,10 +54,11 @@ class Worker(multiprocessing.Process):
 						if len(results['fileNames']) == 1:
 							self.log.info(results['fileNames'])
 							return_msg = results['fileNames'][0]
-	#					elif len(results['fileNames'] < 5
-	#						 return_msg = 'Did you mean:'
-	#						 for a in range(len(results['fileNames'])):
-	#							 a = a+'%d . ',a+1 + 
+						elif len(results['fileNames']) < 5:
+							return_msg = 'Did you mean:'
+							for a in range(len(results['fileNames'])):
+								a = '%d', a+1
+								a = a + results['fileNames'][a] + '\n'
 					else:
 						return_msg = 'Error: Command not found or incorrectly formated'
 					#if confirmation code, set the user to active user.is_active = True and user.put()
@@ -73,13 +74,11 @@ class Worker(multiprocessing.Process):
 				self.text_queue.delete_message(msg)
 
 	#Traverses the SkyDrive, starting from the location given by path.
-	def traverse(self, path, searchTerm):
-		filesFound = []
-		filesFoundIDs = []
+	def traverse(self, path, searchTerm, filesFound = [], filesFoundIDs = []):
 		ls = self.sd.listdir(path)
 		for a in range(len(ls)):
 			if ls[a]['type'] == u'folder':
-				self.traverse(ls[a]['id'], searchTerm)
+				self.traverse(ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
 			elif ls[a]['name'].find(searchTerm) != -1:
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
