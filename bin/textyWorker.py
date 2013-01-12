@@ -119,7 +119,7 @@ class Worker(multiprocessing.Process):
 
 if __name__ == "__main__":
 	workers = []
-	num_workers = boto.config.get("Texty", "number_workers", 1)
+	num_workers = int(boto.config.get("Texty", "number_workers", 1))
 	for i in range(0, num_workers):
 		w = Worker()
 		w.start()
