@@ -21,7 +21,7 @@ class UserHandler(RequestHandler):
 					user_params = {}
 
 					auth_code = request.params["code"]
-					log.info(auth_code)
+					log.info(authorization_code)
 					state = request.params["state"]
 					phone, email = state.split(' ')
 					user_params["phone"] = phone
@@ -83,7 +83,8 @@ def getLiveConnectTokens(auth_code):
 		"redirect_url" : "https://api.buildanavy.com/user/token",
 		"client_id": textyserver.CLIENT_ID,
 		"client_secret": textyserver.CLIENT_SECRET,
-		"code": auth_code
+		"code": auth_code,
+		"grant_type": "authorization_code"
 	}
 	return requests.post(base_url, data=params, headers={"content-type":"application/x-www-form-urlencoded"}).json()
 
