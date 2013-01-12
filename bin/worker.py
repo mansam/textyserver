@@ -102,7 +102,7 @@ class Worker(multiprocessing.Process):
 	def findFile(self, searchTerm, user):
 		print 'blah'
 
-	def traverse(sd, path, searchTerm):
+	def traverse(self, sd, path, searchTerm):
 		file_names = []
 		file_ids = []
 		ls = sd.listdir(path)
