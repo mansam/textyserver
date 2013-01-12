@@ -11,6 +11,7 @@ from skydrive import api_v5, conf
 from pyshorturl import Googl
 import urllib2
 import os
+from time import gmtime, strftime
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
 CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
@@ -160,14 +161,15 @@ class Worker(multiprocessing.Process):
 
 	def note_command(self, sd, user, args):
 		import tempfile
-		import os
+		timestamp = strftime("%Y-%m-%d %H:%M:%S")
 		temp = tempfile.NamedTemporaryFile(prefix='note_', suffix='.txt', dir='/tmp', delete=True)
 		file_name = temp.name
 		temp.write(args)
 		base_name = os.path.splitext(file_name)[0]
 		self.log.info(base_name)
 		self.log.info(file_name)
-		sd.put((file_name.split('/')[-1], args), 'me/skydrive')
+		#sd.put((file_name.split('/')[-1], args), 'me/skydrive')
+		sd.put(('note_'+timestamp+'.txt', args), 'me/skydrive')
 		temp.close()
 		return "Wrote note %s to skydrive." % file_name.split('/')[-1]
 
