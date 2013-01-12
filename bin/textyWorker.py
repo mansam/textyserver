@@ -26,11 +26,18 @@ class Worker(multiprocessing.Process):
 		self.running = True
 
 		self.VALID_COMMANDS = {
+			"get": self.ls_command,
 			"find": self.ls_command,
+			"f": self.ls_command,
+			"ls": self.ls_command,
 			"download": self.download_command,
+			"dl": self.download_command,
 			"space": self.quota_command,
+			"quota": self.quota_command,
+			"q": self.quota_command,
 			"findall": lambda sd, user, args: self.ls_command(sd, user, args, display_more=True),
-			"note": self.note_command
+			"note": self.note_command,
+			"n": self.note_command
 		}	
 
 	def run(self):
