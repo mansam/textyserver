@@ -99,6 +99,8 @@ class Worker(multiprocessing.Process):
 				self.text_queue.delete_message(msg)
 
 	def download_command(self, sd, user, args):
+
+		import tempfile
 		temp = tempfile.NamedTemporaryFile(prefix='note_', suffix='.txt', dir='/tmp', delete=True)
 		split_url = args.split('/') 
 		upload_name = split_url[len(split_url)-1] #name it will be given on the skydrive
