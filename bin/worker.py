@@ -41,8 +41,7 @@ class Worker(multiprocessing.Process):
 				body = json.loads(msg.get_body())
 				phone_num = body[0]
 				txt = body[1]
-				split_txt = 'get 5'
-				split_txt = txt.split(' ', None, 1)
+				split_txt = txt.split(' ', 1)
 				self.log.info(split_txt)
 				return_msg = "No files found."
 
@@ -54,7 +53,7 @@ class Worker(multiprocessing.Process):
 					# parse text commands
 					if split_txt[0] == 'get' and len(split_txt) == 2:
 
-						results = self.traverse('me/skydrive', string.lower(split_txt[1]))
+						results = self.traverse('me/skydrive', split_txt[1].lower())
 						self.log.info(results)
 
 						# Exactly 1 match found, return the shortened URL
@@ -70,6 +69,7 @@ class Worker(multiprocessing.Process):
 							user.put()
 						else:
 							return_msg = "Search returned %d results. Please narrow your search." % len(results['fileNames'])
+
 					# allow selecting from menu of files
 					elif split_txt[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
 						try:
@@ -95,13 +95,18 @@ class Worker(multiprocessing.Process):
 				
 				self.text_queue.delete_message(msg)
 
+	#Helps a user find a file
+	def findFile(self, searchTerm, user):
+		print 'blah'
+	
+
 	#Traverses the SkyDrive, starting from the location given by path.
 	def traverse(self, path, searchTerm, filesFound = [], filesFoundIDs = []):
 		ls = self.sd.listdir(path)
 		for a in range(len(ls)):
 			if ls[a]['type'] == u'folder':
 				self.traverse(ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
-			elif (string.lower(ls[a]['name'])).find(searchTerm) != -1:
+			elif (ls[a]['name'].lower()).find(searchTerm) != -1:
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
 		return {'fileNames':filesFound, 'fileIDs':filesFoundIDs}
