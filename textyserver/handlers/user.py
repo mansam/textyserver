@@ -28,7 +28,7 @@ class UserHandler(RequestHandler):
 		if id:
 			params = id.split('/')
 			if params:
-				if: params[0] == "token":
+				if params[0] == "token":
 					user = TextyUser.find(email=email).next()
 					user.auth_token = response["access_token"]
 					user.refresh_token = response["refresh_token"]
