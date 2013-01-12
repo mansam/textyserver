@@ -10,6 +10,7 @@ import urllib
 from skydrive import api_v5, conf
 from pyshorturl import Googl
 import urllib2
+import os
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
 CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
