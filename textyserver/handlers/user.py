@@ -32,7 +32,7 @@ class UserHandler(RequestHandler):
 	
 					user_params["auth_token"] = resp["access_token"]
 					user_params["refresh_token"] = resp["refresh_token"]
-					createUser(user_params)
+					user = createUser(user_params)
 					try:
 						challenge = getChallengeCode()
 					except Exception:
