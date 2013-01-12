@@ -6,7 +6,7 @@ class TwilioHandler(RequestHandler):
 
 
 	sqs = boto.connect_sqs()
-	text_queue = sqs.lookup("")
+	text_queue = sqs.lookup("texts")
 
 	def _post(self, request, response, id=None):
 		response.content_type = "text/plain"
