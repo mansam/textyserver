@@ -66,8 +66,10 @@ class Worker(multiprocessing.Process):
 							for a in range(len(results['fileNames'])):
 								a = '%d. %s' % (a+1, results['fileNames'][a] + '\n')
 								return_msg += a
+							self.log.info(user.requested_files)
 							user.requested_files = results['fileIDs']
 							user.put()
+							self.log.info(user.requested_files)
 						else:
 							return_msg = "Search returned %d results. Please narrow your search." % len(results['fileNames'])
 					# allow selecting from menu of files
