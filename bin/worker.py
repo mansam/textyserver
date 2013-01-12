@@ -50,7 +50,9 @@ class Worker(multiprocessing.Process):
 					if split_txt[0] == 'get' and len(split_txt) == 2:
 
 						results = self.traverse('me/skydrive', split_txt[1])
+						self.log.info(results)
 						if len(results['fileNames']) == 1:
+							self.log.info(results['fileNames'])
 							return_msg = results['fileNames'][0]
 	#					elif len(results['fileNames'] < 5
 	#						 return_msg = 'Did you mean:'
@@ -69,10 +71,6 @@ class Worker(multiprocessing.Process):
 					self.log.info("Didn't recognize number: %s" % phone_num)
 				
 				self.text_queue.delete_message(msg)
-				
-			else:
-				self.log.info('Waiting.')
-
 
 	#Traverses the SkyDrive, starting from the location given by path.
 	def traverse(self, path, searchTerm):
