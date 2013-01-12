@@ -141,7 +141,7 @@ class Worker(multiprocessing.Process):
 	def traverse(self, sd, path, searchTerm):
 		file_names = []
 		file_ids = []
-		self.log(path)
+		self.log.info(path)
 		files = sd.listdir(path)
 		for f in files:
 			if f['type'] == 'folder':
