@@ -29,7 +29,7 @@ class UserHandler(RequestHandler):
 
 def createUser(params):
 	required_params = ["email", "token", "number"]
-
+	log.info(params)
 	missing_fields = []
 	for param in required_params:
 		if param not in params:
@@ -40,7 +40,7 @@ def createUser(params):
 	user = TextyUser()
 	user.email = params["email"]
 	user.auth_token = params["token"] 
-	user.number = params["number"]
+	user.phone = params["number"]
 
 	return user.put()
 
