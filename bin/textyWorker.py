@@ -39,6 +39,7 @@ class Worker(multiprocessing.Process):
 			"q": self.quota_command,
 			"findall": lambda sd, user, args: self.ls_command(sd, user, args, display_more=True),
 			"note": self.note_command,
+			"read": self.read_command,
 			"n": self.note_command,
 			"?": self.help_command,
 			"help": self.help_command
@@ -104,10 +105,12 @@ class Worker(multiprocessing.Process):
 		upload_name = split_url[len(split_url)-1] #name it will be given on the skydrive
 		f = urllib2.urlopen(args)
 		data = f.read()
-		with open(upload_name, "wb") as code:
+#		with open(upload_name, "wb") as code:
+		with open(temp.name, "wb") as code:
 			code.write(data)
 		f.close()
-		sd.put((upload_name, os.getcwd()+upload_name), 'me/skydrive')
+#		sd.put((upload_name, os.getcwd()+upload_name), 'me/skydrive')
+		sd.put((upload_name, temp.name), 'me/skydrive')
 		return "Downloaded %s to skydrive." % upload_name
 
 	def shorten_link(self, link):
@@ -161,9 +164,14 @@ class Worker(multiprocessing.Process):
 			return return_msg
 
 	def note_command(self, sd, user, args):
-		file_name = 'note_'+strftime("%Y-%m-%d %H:%M:%S", localtime())+'.txt'
+		file_name = 'note_'+strftime("%Y%m%d%H%M%S", localtime())+'.txt'
+		self.log.info('in note_command using file name: %s' % file_name)
+		self.log.info('in note_command using args: %s' % args)
 		sd.put((file_name, args), 'me/skydrive')
 		return "Wrote note %s to skydrive." % file_name.split('/')[-1]
+	
+#	def read_command(self, sd, users, args):
+#		pass
 
 	def generate_menu(self, file_names):
 		menu = 'Enter # of selection: \n'
