@@ -53,6 +53,7 @@ class Worker(multiprocessing.Process):
 					# parse text commands
 					if split_txt[0] == 'get' and len(split_txt) == 2:
 
+						results = []
 						results = self.traverse('me/skydrive', split_txt[1].lower())
 						self.log.info(results)
 
