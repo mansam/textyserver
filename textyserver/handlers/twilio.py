@@ -13,8 +13,8 @@ class TwilioHandler(RequestHandler):
 	def _post(self, request, response, id=None):
 		response.content_type = "text/plain"
 		payload = json.dumps((request.params["From"], request.params["Body"]))
-		msg = sqs.new_message(payload)
-		text_queue.write(msg)
+		msg = self.sqs.new_message(payload)
+		self.text_queue.write(msg)
 		log.info(request.params["From"])
 
 		return response
