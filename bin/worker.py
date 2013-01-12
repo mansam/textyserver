@@ -38,9 +38,14 @@ class Worker(multiprocessing.Process):
 				split_txt = txt.split(' ')
 				
 				if split_txt[0] == 'get' and len(split_txt) == 2:
-					results = traverse(split_txt)
+					results = traverse(split_txt[1])
 					if len(results['fileNames']) == 1:
 						return_msg = results['fileNames'][0]
+					elif len(results['fileNames'] < 5
+						 return_msg = 'Did you mean:\n'
+						 for a in range(len(results['fileNames'])):
+							 a = a+'%d . ',a+1 + 
+					
 
 				else:
 					return_msg = 'Error: Command not found or incorrectly formated'
