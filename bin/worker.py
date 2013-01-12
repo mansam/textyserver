@@ -74,11 +74,11 @@ class Worker(multiprocessing.Process):
 				self.text_queue.delete_message(msg)
 
 	#Traverses the SkyDrive, starting from the location given by path.
-	def traverse(self, path, searchTerm, filesFound = [], filesFoundID = []):
+	def traverse(self, path, searchTerm, filesFound = [], filesFoundIDs = []):
 		ls = self.sd.listdir(path)
 		for a in range(len(ls)):
 			if ls[a]['type'] == u'folder':
-				self.traverse(ls[a]['id'], searchTerm, filesFound, filesFoundID)
+				self.traverse(ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
 			elif ls[a]['name'].find(searchTerm) != -1:
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
