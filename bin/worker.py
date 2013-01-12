@@ -113,7 +113,7 @@ class Worker(multiprocessing.Process):
 				self.log.info('Appending files found.')
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
-				self.log.info(filesFoundIds)
+				self.log.info(filesFoundIDs)
 		return {'fileNames':filesFound, 'fileIDs':filesFoundIDs}
 
 
