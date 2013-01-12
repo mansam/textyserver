@@ -17,7 +17,7 @@ class UserHandler(RequestHandler):
 			params = id.split('/')
 			if params:
 				if params[0] == "code":
-					log.info(request)
+					log.info(request)	
 					user_params = {}
 
 					auth_code = request.params["code"]
@@ -32,7 +32,7 @@ class UserHandler(RequestHandler):
 	
 					user_params["auth_token"] = resp["access_token"]
 					user_params["refresh_token"] = resp["refresh_token"]
-					createUser(user_params)
+					user = createUser(user_params)
 					try:
 						challenge = getChallengeCode()
 					except Exception:
