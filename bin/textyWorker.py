@@ -104,7 +104,7 @@ class Worker(multiprocessing.Process):
 		return return_msg
 
 	def ls_command(self, sd, user, args, display_more=False):
-		results = self.traverse(sd, 'me/skydrive', split_txt[1].lower())
+		results = self.traverse(sd, 'me/skydrive', args.lower())
 
 		if len(results['file_names']) == 0:
 			return "No files found."
