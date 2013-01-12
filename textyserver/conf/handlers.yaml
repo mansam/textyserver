@@ -1,3 +1,6 @@
-- url: /$
-  handler: textyserver.handlers.IndexHandler
-  name: Index
+- url: /twilio
+  handler: textyserver.handlers.TwilioHandler
+  name: Twilio
+- url: /user
+  handler: textyserver.handlers.UserHandler
+  name: User
