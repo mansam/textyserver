@@ -41,20 +41,19 @@ class Worker(multiprocessing.Process):
 				body = json.loads(msg.get_body())
 				phone_num = body[0]
 				txt = body[1]
-				#split_txt = 'get 5'
-				split_txt = txt.split(' ')
+				split_txt = 'get 5'
+				split_txt = txt.split(' ', None, 1)
 				self.log.info(split_txt)
 				return_msg = "No files found."
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
-					#user = TextyUser.TextyUser()
 					self.sd.auth_access_token = user.auth_token
 					self.sd.auth_refresh_token = user.refresh_token
 
 					if split_txt[0] == 'get' and len(split_txt) == 2:
 
-						results = self.traverse('me/skydrive', split_txt[1])
+						results = self.traverse('me/skydrive', string.lower(split_txt[1]))
 						self.log.info(results)
 
 						#Exactly 1 match found, return the shortened URL
@@ -84,7 +83,7 @@ class Worker(multiprocessing.Process):
 		for a in range(len(ls)):
 			if ls[a]['type'] == u'folder':
 				self.traverse(ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
-			elif ls[a]['name'].find(searchTerm) != -1:
+			elif (string.lower(ls[a]['name'])).find(searchTerm) != -1:
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
 		return {'fileNames':filesFound, 'fileIDs':filesFoundIDs}
