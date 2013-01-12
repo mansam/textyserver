@@ -43,7 +43,7 @@ class Worker(multiprocessing.Process):
 				txt = body[1]
 				split_txt = txt.split(' ')
 				self.log.info(split_txt)
-				return_msg = "test"
+				return_msg = "No files found."
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
