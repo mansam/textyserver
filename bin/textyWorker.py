@@ -180,7 +180,7 @@ class Worker(multiprocessing.Process):
 		return menu
 
 	def help_command(self, sd, user, args):
-		help_msg = "find <files> - get link %0anote <some text> - write note %0adl <remote file link> - downld file %0aspace - get remaining space"
+		help_msg = "find <files> - get link\nnote <some text> - write note\ndl <remote file link> - downld file\nspace - get remaining space"
 		return help_msg
 
 	def traverse(self, sd, path, searchTerm):
