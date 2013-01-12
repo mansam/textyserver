@@ -9,6 +9,7 @@ import skydrive
 import urllib
 from skydrive import api_v5, conf
 from pyshorturl import Googl
+import urllib2
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
 CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
@@ -62,9 +63,11 @@ class Worker(multiprocessing.Process):
 						results = self.traverse(sd, 'me/skydrive', split_txt[1].lower())
 						self.log.info(results)
 
-						# Exactly 1 match found, return the shortened URL
+						if len(results['fileNames']) == 0:
+							pass
 
-						if len(results['fileNames']) == 1:
+						# Exactly 1 match found, return the shortened URL
+						elif len(results['fileNames']) == 1:
 							self.log.info(results['fileNames'])
 							return_msg = shortener.shorten_url(sd.link(results['fileIDs'][0])['link'])
 
@@ -83,7 +86,7 @@ class Worker(multiprocessing.Process):
 						else:
 							return_msg = "Search returned %d results. Please narrow your search, or text \'disp\' to display all results" % len(results['fileNames'])
 							user.requested_files = results['fileIDs'] #**
-x
+							
 					# allow selecting from menu of files
 					elif split_txt[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
 						try:
@@ -104,6 +107,15 @@ x
 							return_msg += a
 						user.requested_files = results['fileIDs']
 						user.put()
+					elif split_txt[0] == 'dl' and len(split_txt) == 2:
+						#path = path to the file on the server that it downloaded (maybe user.downloadFile(split_txt[1]))
+						path = '/'
+						sd.put(path, 'me/skydrive')
+					elif split_txt[0] == 'space' and len(split_txt) == 2:
+						ans = sd.get_quota()
+						return_msg = 'You have %f GB availible out of %f GB total' % \
+						    (ans[0]/float(1000000000), ans[1]/float(1000000000))
+						
 							
 					else:
 						return_msg = 'Error: Command not found or incorrectly formated'
