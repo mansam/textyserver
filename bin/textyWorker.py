@@ -96,7 +96,7 @@ class Worker(multiprocessing.Process):
 
 	def quota_command(self, sd, user, args):
 		ans = sd.get_quota()
-		return_msg = 'You have %f GB availible out of %f GB total' % (ans[0]/float(1000000000), ans[1]/float(1000000000))		
+		return = 'You have %f GB availible out of %f GB total' % (ans[0]/float(1000000000), ans[1]/float(1000000000))		
 
 	def choose_command(self, sd, user, number):
 		return_msg = ""
