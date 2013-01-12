@@ -60,15 +60,15 @@ class Worker(multiprocessing.Process):
 					sd.auth_refresh_token = user.refresh_token
 
 					if command in self.VALID_COMMANDS:
-						msg = self.VALID_COMMANDS[command](sd, user, args)
+						return_msg = self.VALID_COMMANDS[command](sd, user, args)
 
 					elif command.isdigit():
-						msg = self.choose_command(sd, user, command)
+						return_msg = self.choose_command(sd, user, command)
 					else:
-						msg = 'Error: Command not found or incorrectly formated'
+						return_msg = 'Error: Command not found or incorrectly formated'
 					try:
-						self.log.info(msg)
-						user.sms(msg)
+						self.log.info(return_msg)
+						user.sms(return_msg)
 					except:
 						# failed to send message
 						self.log.exception('Failed sending sms to %s.' % phone_num)
