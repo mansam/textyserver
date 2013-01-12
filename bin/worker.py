@@ -38,16 +38,6 @@ class Worker(multiprocessing.Process):
 				phone_num = body[0]
 				txt = body[1]
 				split_txt = txt.split(' ')
-				
-				if split_txt[0] == 'get' and len(split_txt) == 2:
-
-					results = self.traverse('me/skydrive', split_txt[1])
-					if len(results['fileNames']) == 1:
-						return_msg = results['fileNames'][0]
-#					elif len(results['fileNames'] < 5
-#						 return_msg = 'Did you mean:'
-#						 for a in range(len(results['fileNames'])):
-#							 a = a+'%d . ',a+1 + 
 					
 
 				else:
@@ -56,6 +46,16 @@ class Worker(multiprocessing.Process):
 					user = TextyUser.find(phone=phone_num).next()
 					self.sd.auth_access_token = user.auth_token
 					self.sd.auth_refresh_token = user.refresh_token
+
+					if split_txt[0] == 'get' and len(split_txt) == 2:
+
+						results = self.traverse('me/skydrive', split_txt[1])
+						if len(results['fileNames']) == 1:
+							return_msg = results['fileNames'][0]
+	#					elif len(results['fileNames'] < 5
+	#						 return_msg = 'Did you mean:'
+	#						 for a in range(len(results['fileNames'])):
+	#							 a = a+'%d . ',a+1 + 
 
 					#if confirmation code, set the user to active user.is_active = True and user.put()
 					try:
