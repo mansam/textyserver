@@ -38,12 +38,12 @@ class Worker(multiprocessing.Process):
 				phone_num = body[0]
 				txt = body[1]
 				split_txt = txt.split(' ')
-					
+				return_msg = ""
+
 				try:
 					user = TextyUser.find(phone=phone_num).next()
 					self.sd.auth_access_token = user.auth_token
 					self.sd.auth_refresh_token = user.refresh_token
-					self.sd.auth_code = 'a6b5c604-54ec-5353-2032-41fe3e9b0493'
 
 					if split_txt[0] == 'get' and len(split_txt) == 2:
 
