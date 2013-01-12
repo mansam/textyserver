@@ -59,11 +59,11 @@ class Worker(multiprocessing.Process):
 					sd.auth_access_token = user.auth_token
 					sd.auth_refresh_token = user.refresh_token
 
-					if command in VALID_COMMANDS:
-						msg = VALID_COMMANDS[command](sd, user, args)
+					if command in self.VALID_COMMANDS:
+						msg = self.VALID_COMMANDS[command](sd, user, args)
 
 					elif command.isdigit():
-						msg = choose_command(sd, user, command)
+						msg = self.choose_command(sd, user, command)
 					else:
 						msg = 'Error: Command not found or incorrectly formated'
 					try:
