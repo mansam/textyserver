@@ -95,6 +95,7 @@ class Worker(multiprocessing.Process):
 				self.text_queue.delete_message(msg)
 
 	def download_command(self, sd, user, args):
+		split_args = args.split(' ', 1)
 		split_url = args.split('/') 
 		upload_name = split_url[len(split_url)-1] #name it will be given on the skydrive
 		print 'before opening the url'
