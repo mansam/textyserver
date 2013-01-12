@@ -65,7 +65,7 @@ class Worker(multiprocessing.Process):
 							return_msg = 'Did you mean: '
 							for a in range(len(results['fileNames'])):
 								a = '%d. %s' % (a+1, results['fileNames'][a] + '\n')
-							return_msg += a
+								return_msg += a
 							user.requested_files = results['fileIDs']
 							user.put()
 						else:
