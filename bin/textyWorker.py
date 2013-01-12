@@ -155,7 +155,7 @@ class Worker(multiprocessing.Process):
 		self.log.info(file_name)
 		sd.put((file_name.split('/')[-1], file_name), 'me/skydrive')
 		temp.close()
-		return "Wrote note %s to skydrive." % base_name
+		return "Wrote note %s to skydrive." % file_name.split('/'[-1])
 
 	def generate_menu(self, file_names):
 		menu = 'Enter # of selection: \n'
