@@ -50,10 +50,11 @@ class Worker(multiprocessing.Process):
 						results = self.traverse('me/skydrive', split_txt[1])
 						if len(results['fileNames']) == 1:
 							return_msg = results['fileNames'][0]
-	#					elif len(results['fileNames'] < 5
-	#						 return_msg = 'Did you mean:'
-	#						 for a in range(len(results['fileNames'])):
-	#							 a = a+'%d . ',a+1 + 
+						elif len(results['fileNames']) < 5:
+							return_msg = 'Did you mean:'
+							for a in range(len(results['fileNames'])):
+								a = '%d', a+1
+								a = a + results['fileNames'][a] + '\n'
 					else:
 						return_msg = 'Error: Command not found or incorrectly formated'
 					#if confirmation code, set the user to active user.is_active = True and user.put()
