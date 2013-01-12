@@ -34,13 +34,14 @@ class UserHandler(RequestHandler):
 					user_params["refresh_token"] = resp["refresh_token"]
 					user = createUser(user_params)
 					try:
-						user.challenge = getChallengeCode()
+						challenge = getChallengeCode()
+						user.challenge = challenge
 						user.put()
 					except Exception:
 						# retry 
 						raise
 					try:
-						user.sms(user.challenge)
+						user.sms(challenge)
 					except Exception:
 						# deal with twilio errors
 						raise
