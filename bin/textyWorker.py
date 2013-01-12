@@ -13,10 +13,13 @@ import urllib2
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
 CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
-DISPLAY_CUTOFF = 5
-
-
-
+DISPLAY_CUTOFF = boto.config.get("Texty", "display_cutoff", 5)
+VALID_COMMANDS = {
+	"find": ls_command,
+	"download": download_command,
+	"space": quota_command,
+	"findall": lambda sd, user, args: ls_command(sd, user, args, display_more=True) 
+}
 
 class Worker(multiprocessing.Process):
 
@@ -44,97 +47,92 @@ class Worker(multiprocessing.Process):
 				
 				#Consists of a phone number and a text message body
 				body = json.loads(msg.get_body())
+
 				phone_num = body[0]
 				txt = body[1]
-				split_txt = txt.split(' ', 1)
-				self.log.info(split_txt)
-				return_msg = "No files found."
+
+				command, args = txt.split(' ', 1)
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
 					sd.auth_access_token = user.auth_token
 					sd.auth_refresh_token = user.refresh_token
 
-					# parse text commands
-					if split_txt[0] == 'get' and len(split_txt) == 2:
+					if command in VALID_COMMANDS:
+						msg = VALID_COMMANDS[command](sd, user, args)
 
-						results = []
-						user.requested_files = [] #**
-						results = self.traverse(sd, 'me/skydrive', split_txt[1].lower())
-						self.log.info(results)
-
-						if len(results['file_names']) == 0:
-							pass
-
-
-						# Exactly 1 match found, return the shortened URL
-						elif len(results['file_names']) == 1:
-							self.log.info(results['file_names'])
-							return_msg = shortener.shorten_url(sd.link(results['file_ids'][0])['link'])
-
-
-						#Multiple results found, send them to the user so he/she can pick
-						elif len(results['file_names']) < DISPLAY_CUTOFF:
-							return_msg = 'Type "choose X" to select:\n'
-							for a in range(len(results['file_names'])):
-								a = '%d. %s' % (a+1, results['file_names'][a] + '\n')
-								return_msg += a
-							self.log.info(user.requested_files)
-							user.requested_files = results['file_ids']
-							user.put()
-							self.log.info(user.requested_files)
-
-						#A lot of results found, tell the user to refine the search
-						else:
-							return_msg = "Search returned %d results. Please narrow your search, or text \'disp\' to display all results" % len(results['file_names'])
-							user.requested_files = results['file_ids'] #**
-							
-					# allow selecting from menu of files
-					elif split_txt[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
-						try:
-							selection = int(split_txt[1])
-							if (0 < selection <= len(user.requested_files)):
-								return_msg = shortener.shorten_url(sd.link(results['file_ids'][selection-1])['link'])
-							user.requested_files = []
-							user.put()
-						except:
-							return_msg = "Error: Invalid selection"  
-
-					#The search returned a lot of files, and the user requested that they all be displayed
-					#Note that technically the user could skip the 'disp' step, and just 'choose' blindly from the list
-					elif split_txt[0] == 'disp' and len(split_txt) == 1 and len(user.requested_files):
-						return_msg = 'Type "choose X" to select:\n'
-						for a in range(len(user.requested_files['file_names'])):
-							a = '%d. %s' % (a+1, user.requested_files['file_names'][a] + '\n')
-							return_msg += a
-						user.requested_files = results['file_ids']
-						user.put()
-					elif split_txt[0] == 'dl' and len(split_txt) == 2:
-						#path = path to the file on the server that it downloaded (maybe user.downloadFile(split_txt[1]))
-						path = '/'
-						sd.put(path, 'me/skydrive')
-					elif split_txt[0] == 'space' and len(split_txt) == 2:
-						ans = sd.get_quota()
-						return_msg = 'You have %f GB availible out of %f GB total' % \
-						    (ans[0]/float(1000000000), ans[1]/float(1000000000))
-						
-							
+					elif command.isdigit():
+						msg = choose_command(sd, user, command)
 					else:
-						return_msg = 'Error: Command not found or incorrectly formated'
+						msg = 'Error: Command not found or incorrectly formated'
 					try:
-						self.log.info(return_msg)
-						user.sms(return_msg)
+						self.log.info(msg)
+						user.sms(msg)
 					except:
 						# failed to send message
 						self.log.exception('Failed sending sms to %s.' % phone_num)
+
 				except StopIteration:
 					self.log.info("Didn't recognize number: %s" % phone_num)
 				
 				self.text_queue.delete_message(msg)
 
-	#Helps a user find a file
-	def findFile(self, searchTerm, user):
-		print 'blah'
+	def download_command(sd, user, args):
+		#path = path to the file on the server that it downloaded (maybe user.downloadFile(split_txt[1]))
+		path = '/'
+		sd.put(path, 'me/skydrive')	
+
+	def shorten_link(link):
+		shortener = Googl()
+		return shortener.shorten_url(link)
+
+	def quota_command(sd, user, args):
+		ans = sd.get_quota()
+		return_msg = 'You have %f GB availible out of %f GB total' % (ans[0]/float(1000000000), ans[1]/float(1000000000))		
+
+	def choose_command(sd, user, number):
+		return_msg = ""
+		try:
+			selection = int(number)
+			if (0 < selection <= len(user.requested_files)):
+				return_msg = shorten_link(sd.link(results['file_ids'][selection-1])['link'])
+				user.requested_files = []
+				user.put()
+		except:
+			return_msg = "Error: Invalid selection"  
+		return return_msg
+
+	def ls_command(sd, user, args, display_more=False):
+		results = self.traverse(sd, 'me/skydrive', split_txt[1].lower())
+
+		if len(results['file_names']) == 0:
+			return "No files found."
+
+		# Exactly 1 match found, return the shortened URL
+		elif len(results['file_names']) == 1:
+			self.log.info(results['file_names'])
+			return shorten_link(sd.link(results['file_ids'][0])['link'])
+
+		# Multiple results found, send them to the user so he/she can pick
+		elif len(results['file_names']) < DISPLAY_CUTOFF or display_more:
+			return_msg = generate_menu(results['file_names'])
+			user.requested_files = results['file_ids']
+			user.put()
+			return return_msg
+
+		# A lot of results found, tell the user to refine the search
+		else:
+			return_msg = "Search returned %d files. Narrow your search, or text \'findall %s\' to show all results" % (len(results['file_names'], args))
+			user.requested_files = results['file_ids']
+			user.put()
+			return return_msg
+
+	def generate_menu(file_names):
+		menu = 'Enter # of selection: \n'
+		for i in range(0, len(file_names)):
+			option = '#%d. %s\n' % (option + 1, file_names[i])
+			menu += option
+		return menu
 
 	def traverse(self, sd, path, searchTerm):
 		file_names = []
