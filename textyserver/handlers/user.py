@@ -2,10 +2,10 @@ from botoweb.appserver.handlers import RequestHandler
 from botoweb.exceptions import BadRequest
 from textyserver.resources.user import TextyUser
 
+import logging
+log = logging.getLogger('texty.userHandler')
+
 class UserHandler(RequestHandler):
-	
-	def __init__(self, env, config):
-		pass
 
 	def _post(self, request, response, id=None):
 		response.content_type = "application/json"
