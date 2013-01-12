@@ -46,6 +46,10 @@ def createUser(params):
 
 def getChallengeCode():
 	import urllib2
+	length = "6"
+	digits = "on"
+	loweralpha = "on"
+	upperalpha = "off"
 	url = "https://www.random.org/cgi-bin/randstring?num=1&len=%s&digits=%s&upperalpha=%s&loweralpha=%s&unique=on&format=text&rnd=new" % (length, digits, upperalpha, loweralpha)
 	headers = {"User-Agent": "%s %s (%s)" % (boto.config.get("app", "name", "skydrive_texty"), boto.config.get("app", "version", "0.1"), boto.config.get("app", "admin_email", ""))}
 	req = urllib2.Request(url, None, headers)
