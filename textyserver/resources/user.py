@@ -1,4 +1,5 @@
 from botoweb.resources.user import User
+from botoweb.db.coremodel import Model
 from botoweb.db.property import StringProperty
 from botoweb.db.property import BooleanProperty
 from botoweb.db.property import DateTimeProperty
