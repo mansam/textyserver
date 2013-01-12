@@ -103,7 +103,7 @@ class Worker(multiprocessing.Process):
 		try:
 			selection = int(number)
 			if (0 < selection <= len(user.requested_files)):
-				return_msg = self.shorten_link(sd.link(results['file_ids'][selection-1])['link'])
+				return_msg = self.shorten_link(sd.link(user.requested_files[selection-1])['link'])
 				user.requested_files = []
 				user.put()
 		except:
