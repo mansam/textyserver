@@ -6,6 +6,7 @@ import logging
 import signal
 import json
 import skydrive
+import urllib
 from skydrive import api_v5, conf
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
@@ -58,7 +59,8 @@ class Worker(multiprocessing.Process):
 						return_msg = 'Error: Command not found or incorrectly formated'
 					#if confirmation code, set the user to active user.is_active = True and user.put()
 					try:
-						user.sms(return_msg)
+						self.log.info(return_msg)
+						user.sms(urllib.quote_plus(return_msg))
 					except:
 						# failed to send message
 						self.log.exception('Failed sending sms to %s.' % phone_num)
