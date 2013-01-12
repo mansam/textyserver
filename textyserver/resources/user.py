@@ -11,3 +11,15 @@ class TextyUser(User):
 	def put(self):
 		self.username = self.email
 		return User.put(self)
+
+	def to_dict(self, *args, **kwargs):
+		"""
+		Convert obj to dictionary for JSON serialization.
+		Override Botoweb User's default to_dict()
+		because we don't give a damn about the Authorization
+		groups.
+
+		"""
+		
+		ret = Model.to_dict(self, *args, **kwargs)
+		return ret
