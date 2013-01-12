@@ -62,7 +62,7 @@ class Worker(multiprocessing.Process):
 							self.log.info(results['fileNames'])
 							return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][0])['link'])
 						elif len(results['fileNames']) < 5:
-							return_msg = 'Did you mean: '
+							return_msg = 'Type "choose X" to select:\n'
 							for a in range(len(results['fileNames'])):
 								a = '%d. %s' % (a+1, results['fileNames'][a] + '\n')
 								return_msg += a
@@ -75,7 +75,7 @@ class Worker(multiprocessing.Process):
 						try:
 							selection = int(split_txt[1])
 							if (0 < selection <= len(user.requested_files)):
-								return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][selection])['link'])
+								return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][selection-1])['link'])
 							user.requested_files = []
 							user.put()
 						except:
