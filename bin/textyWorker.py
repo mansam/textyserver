@@ -11,7 +11,7 @@ from skydrive import api_v5, conf
 from pyshorturl import Googl
 import urllib2
 import os
-from time import gmtime, strftime
+from time import localtime, strftime
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
 CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
@@ -98,19 +98,14 @@ class Worker(multiprocessing.Process):
 				self.text_queue.delete_message(msg)
 
 	def download_command(self, sd, user, args):
-		self.log.info('entering dowload command with args: %s' % args)
+		temp = tempfile.NamedTemporaryFile(prefix='note_', suffix='.txt', dir='/tmp', delete=True)
 		split_url = args.split('/') 
 		upload_name = split_url[len(split_url)-1] #name it will be given on the skydrive
-		self.log.info('before opening the url')
 		f = urllib2.urlopen(args)
-		self.log.info('before f.read()')
 		data = f.read()
-		self.log.info('before while loop')
 		with open(upload_name, "wb") as code:
 			code.write(data)
-		self.log.info('before close')
 		f.close()
-		self.log.info('before put')
 		sd.put((upload_name, os.getcwd()+upload_name), 'me/skydrive')
 		return "Downloaded %s to skydrive." % upload_name
 
@@ -160,17 +155,8 @@ class Worker(multiprocessing.Process):
 			return return_msg
 
 	def note_command(self, sd, user, args):
-		import tempfile
-		timestamp = strftime("%Y-%m-%d %H:%M:%S")
-		temp = tempfile.NamedTemporaryFile(prefix='note_', suffix='.txt', dir='/tmp', delete=True)
-		file_name = temp.name
-		temp.write(args)
-		base_name = os.path.splitext(file_name)[0]
-		self.log.info(base_name)
-		self.log.info(file_name)
-		#sd.put((file_name.split('/')[-1], args), 'me/skydrive')
-		sd.put(('note_'+timestamp+'.txt', args), 'me/skydrive')
-		temp.close()
+		file_name = 'note_'+strftime("%Y-%m-%d %H:%M:%S", localtime())+'.txt'
+		sd.put((file_name, args), 'me/skydrive')
 		return "Wrote note %s to skydrive." % file_name.split('/')[-1]
 
 	def generate_menu(self, file_names):
