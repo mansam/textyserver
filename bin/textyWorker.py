@@ -39,7 +39,7 @@ class Worker(multiprocessing.Process):
 			"note": self.note_command,
 			"n": self.note_command
 		}	
-
+		
 	def run(self):
 		
 		shortener = Googl()
@@ -96,9 +96,12 @@ class Worker(multiprocessing.Process):
 	def download_command(self, sd, user, args):
 		split_url = args.split('/') #name it will be given on the skydrive
 		upload_name = split_url[len(split_url)-1]
-		f = urllib2.urlopen(args[1])
+		#f = urllib2.urlopen(args[1])
 		data = f.read()
-		sd.put((upload_name, data), 'me/skydrive')
+		with open(file_name, "wb") as code:
+			code.write(data)
+		f.close()
+		sd.put((upload_name, os.getcwd()+upload_name), 'me/skydrive')
 		return "Downloaded %s to skydrive." % upload_name
 
 	def shorten_link(self, link):
