@@ -74,7 +74,7 @@ class Worker(multiprocessing.Process):
 					elif split_text[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
 						try:
 							selection = int(split_txt[1])
-							if (0 < selection <= len(user.requested_files):
+							if (0 < selection <= len(user.requested_files)):
 								return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][selection])['link'])
 							user.requested_files = []
 							user.put()
