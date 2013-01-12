@@ -39,7 +39,6 @@ class Worker(multiprocessing.Process):
 			"q": self.quota_command,
 			"findall": lambda sd, user, args: self.ls_command(sd, user, args, display_more=True),
 			"note": self.note_command,
-			"read": self.read_command,
 			"n": self.note_command,
 			"?": self.help_command,
 			"help": self.help_command
@@ -170,8 +169,6 @@ class Worker(multiprocessing.Process):
 		sd.put((file_name, args), 'me/skydrive')
 		return "Wrote note %s to skydrive." % file_name.split('/')[-1]
 	
-#	def read_command(self, sd, users, args):
-#		pass
 
 	def generate_menu(self, file_names):
 		menu = 'Enter # of selection: \n'
