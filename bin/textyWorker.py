@@ -97,10 +97,10 @@ class Worker(multiprocessing.Process):
 	def download_command(self, sd, user, args):
 		self.log.info('entering dowload command with args: %s' % args)
 		split_args = args.split(' ', 1)
-		split_url = args.split('/') 
+		split_url = split_args[1].split('/') 
 		upload_name = split_url[len(split_url)-1] #name it will be given on the skydrive
 		self.log.info('before opening the url')
-		f = urllib2.urlopen(args[1])
+		f = urllib2.urlopen(split_args[1])
 		self.log.info('before f.read()')
 		data = f.read()
 		self.log.info('before while loop')
