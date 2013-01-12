@@ -14,13 +14,13 @@ class UserHandler(RequestHandler):
 		user = createUser(request.params)
 		try:
 			challenge = getChallengeCode()
-		except e:
+		except Exception as e:
 			# retry 
 			raise e
 
 		try:
 			user.sms(challenge)
-		except e:
+		except Exception as e:
 			# deal with twilio errors
 			raise e
 
@@ -32,7 +32,7 @@ def createUser(params):
 	log.info(params)
 	missing_fields = []
 	for param in required_params:
-		if param not in params:
+		if param not in rparams:
 			missing_fields.append(param)
 		if missing_fields:
 			raise BadRequest("Missing required field(s): %s" % " ".join(missing_fields))
