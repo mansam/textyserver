@@ -113,13 +113,15 @@ class Worker(multiprocessing.Process):
 
 					#Download a file and put it on the user's root SkyDrive directory (me/skydrive)
 					elif split_txt[0] == 'dl' and len(split_txt) == 2:
+						split_url = split_txt[1].split('/') #name it will be given on the skydrive
+						upload_name = split_url[len(split_url)-1]
 						file_name = os.getcwd()+user.phone_number+'.zip' 
 						f = urllib2.urlopen(split_txt[1])
 						data = f.read()
 						with open(file_name, "wb") as code:
 							code.write(data)
 						f.close()
-						sd.put(file_name+'.zip', 'me/skydrive')
+						sd.put((upload_name, file_name), 'me/skydrive')
 						os.remove(file_name)
 
 					#Get the amount of space the user has left
