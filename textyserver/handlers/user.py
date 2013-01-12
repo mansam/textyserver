@@ -23,12 +23,12 @@ class UserHandler(RequestHandler):
 					auth_code = request.params["code"]
 					state = request.params["state"]
 					phone, email = state.split(' ')
-					user_params["number"] = phone
+					user_params["phone"] = phone
 					user_params["email"] = email
 
 					resp = getLiveConnectTokens(auth_code)
 	
-					user_params["auth_token" = response["access_token"]
+					user_params["auth_token"] = response["access_token"]
 					user_params["refresh_token"] = response["refresh_token"]
 					createUser(user_params)
 					try:
@@ -87,7 +87,7 @@ def getLiveConnectTokens(auth_code, email):
 	return json.loads(requests.post(live_connect_url).json())
 
 def createUser(params):
-	required_params = ["email", "number"]
+	required_params = ["email", "phone", "auth_token", "refresh_token"]
 	log.info(params)
 	missing_fields = []
 	for param in required_params:
@@ -98,7 +98,9 @@ def createUser(params):
 
 	user = TextyUser()
 	user.email = params["email"]
-	user.phone = params["number"]
+	user.phone = params["phone"]
+	user.auth_token = params["auth_token"]
+	user.refresh_token = params["refresh_token"]
 
 	return user.put()
 
