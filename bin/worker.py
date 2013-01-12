@@ -110,8 +110,10 @@ class Worker(multiprocessing.Process):
 			if ls[a]['type'] == u'folder':
 				self.traverse(sd, ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
 			elif (ls[a]['name'].lower()).find(searchTerm) != -1:
+				self.log.info('Appending files found.')
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
+				self.log.info(filesFoundIds)
 		return {'fileNames':filesFound, 'fileIDs':filesFoundIDs}
 
 
