@@ -14,12 +14,6 @@ import urllib2
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
 CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
 DISPLAY_CUTOFF = boto.config.get("Texty", "display_cutoff", 5)
-VALID_COMMANDS = {
-	"find": ls_command,
-	"download": download_command,
-	"space": quota_command,
-	"findall": lambda sd, user, args: ls_command(sd, user, args, display_more=True) 
-}
 
 class Worker(multiprocessing.Process):
 
@@ -30,6 +24,13 @@ class Worker(multiprocessing.Process):
 		self.text_queue = self.sqs.lookup('texts')
 		self.log = logging.getLogger('texty.workers')
 		self.running = True
+
+		VALID_COMMANDS = {
+			"find": self.ls_command,
+			"download": self.download_command,
+			"space": self.quota_command,
+			"findall": lambda sd, user, args: self.ls_command(sd, user, args, display_more=True) 
+		}	
 
 	def run(self):
 		
@@ -77,32 +78,32 @@ class Worker(multiprocessing.Process):
 				
 				self.text_queue.delete_message(msg)
 
-	def download_command(sd, user, args):
+	def download_command(self, sd, user, args):
 		#path = path to the file on the server that it downloaded (maybe user.downloadFile(split_txt[1]))
 		path = '/'
 		sd.put(path, 'me/skydrive')	
 
-	def shorten_link(link):
+	def shorten_link(self, link):
 		shortener = Googl()
 		return shortener.shorten_url(link)
 
-	def quota_command(sd, user, args):
+	def quota_command(self, sd, user, args):
 		ans = sd.get_quota()
 		return_msg = 'You have %f GB availible out of %f GB total' % (ans[0]/float(1000000000), ans[1]/float(1000000000))		
 
-	def choose_command(sd, user, number):
+	def choose_command(self, sd, user, number):
 		return_msg = ""
 		try:
 			selection = int(number)
 			if (0 < selection <= len(user.requested_files)):
-				return_msg = shorten_link(sd.link(results['file_ids'][selection-1])['link'])
+				return_msg = self.shorten_link(sd.link(results['file_ids'][selection-1])['link'])
 				user.requested_files = []
 				user.put()
 		except:
 			return_msg = "Error: Invalid selection"  
 		return return_msg
 
-	def ls_command(sd, user, args, display_more=False):
+	def ls_command(self, sd, user, args, display_more=False):
 		results = self.traverse(sd, 'me/skydrive', split_txt[1].lower())
 
 		if len(results['file_names']) == 0:
@@ -111,11 +112,11 @@ class Worker(multiprocessing.Process):
 		# Exactly 1 match found, return the shortened URL
 		elif len(results['file_names']) == 1:
 			self.log.info(results['file_names'])
-			return shorten_link(sd.link(results['file_ids'][0])['link'])
+			return self.shorten_link(sd.link(results['file_ids'][0])['link'])
 
 		# Multiple results found, send them to the user so he/she can pick
 		elif len(results['file_names']) < DISPLAY_CUTOFF or display_more:
-			return_msg = generate_menu(results['file_names'])
+			return_msg = self.generate_menu(results['file_names'])
 			user.requested_files = results['file_ids']
 			user.put()
 			return return_msg
