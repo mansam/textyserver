@@ -27,6 +27,7 @@ class UserHandler(RequestHandler):
 					user_params["email"] = email
 
 					resp = getLiveConnectTokens(auth_code)
+					log.info(resp)
 	
 					user_params["auth_token"] = resp["access_token"]
 					user_params["refresh_token"] = resp["refresh_token"]
