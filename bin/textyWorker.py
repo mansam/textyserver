@@ -153,7 +153,7 @@ class Worker(multiprocessing.Process):
 		base_name = os.path.splitext(file_name)[0]
 		self.log.info(base_name)
 		self.log.info(file_name)
-		sd.put((file_name.split('/')[-1], file_name), 'me/skydrive')
+		sd.put((file_name.split('/')[-1], temp), 'me/skydrive')
 		temp.close()
 		return "Wrote note %s to skydrive." % file_name.split('/'[-1])
 
