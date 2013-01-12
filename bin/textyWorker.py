@@ -153,9 +153,9 @@ class Worker(multiprocessing.Process):
 		base_name = os.path.splitext(file_name)[0]
 		self.log.info(base_name)
 		self.log.info(file_name)
-		sd.put((file_name.split('/')[-1], temp), 'me/skydrive')
+		sd.put((file_name.split('/')[-1], args), 'me/skydrive')
 		temp.close()
-		return "Wrote note %s to skydrive." % file_name.split('/'[-1])
+		return "Wrote note %s to skydrive." % file_name.split('/')[-1]
 
 	def generate_menu(self, file_names):
 		menu = 'Enter # of selection: \n'
