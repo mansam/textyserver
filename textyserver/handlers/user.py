@@ -41,7 +41,7 @@ class UserHandler(RequestHandler):
 						# retry 
 						raise
 					try:
-						user.sms(challenge)
+						user.sms("Texty Confirmation: %s" % challenge)
 					except Exception:
 						# deal with twilio errors
 						raise
