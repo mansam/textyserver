@@ -59,7 +59,7 @@ class Worker(multiprocessing.Process):
 						if len(results['fileNames']) == 1:
 							self.log.info(results['fileNames'])
 							#return_msg = results['fileNames'][0]
-							return_msg = shortener.shorten_url(sd.link(results['fileIDs'][0])['link'])
+							return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][0])['link'])
 						elif len(results['fileNames']) < 5:
 							return_msg = 'Did you mean:'
 							for a in range(len(results['fileNames'])):
