@@ -3,6 +3,7 @@ from botoweb.exceptions import BadRequest
 from textyserver.resources.user import TextyUser
 import logging
 import json
+import boto
 
 log = logging.getLogger('texty.userHandler')
 
