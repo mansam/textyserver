@@ -53,7 +53,7 @@ class Worker(multiprocessing.Process):
 				txt = body[1].split(' ', 1)
 
 				command = txt[0]
-				if len(txt) > 1
+				if len(txt) > 1:
 					args = txt[1]
 				else:
 					args = ""
