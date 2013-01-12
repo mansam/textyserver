@@ -39,9 +39,6 @@ class Worker(multiprocessing.Process):
 				txt = body[1]
 				split_txt = txt.split(' ')
 					
-
-				else:
-					return_msg = 'Error: Command not found or incorrectly formated'
 				try:
 					user = TextyUser.find(phone=phone_num).next()
 					self.sd.auth_access_token = user.auth_token
@@ -56,7 +53,8 @@ class Worker(multiprocessing.Process):
 	#						 return_msg = 'Did you mean:'
 	#						 for a in range(len(results['fileNames'])):
 	#							 a = a+'%d . ',a+1 + 
-
+					else:
+						return_msg = 'Error: Command not found or incorrectly formated'
 					#if confirmation code, set the user to active user.is_active = True and user.put()
 					try:
 						user.sms(return_msg)
