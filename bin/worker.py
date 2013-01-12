@@ -41,12 +41,14 @@ class Worker(multiprocessing.Process):
 				body = json.loads(msg.get_body())
 				phone_num = body[0]
 				txt = body[1]
+				#split_txt = 'get 5'
 				split_txt = txt.split(' ')
 				self.log.info(split_txt)
 				return_msg = "No files found."
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
+					#user = TextyUser.TextyUser()
 					self.sd.auth_access_token = user.auth_token
 					self.sd.auth_refresh_token = user.refresh_token
 
@@ -58,15 +60,13 @@ class Worker(multiprocessing.Process):
 						#Exactly 1 match found, return the shortened URL
 						if len(results['fileNames']) == 1:
 							self.log.info(results['fileNames'])
-							#return_msg = results['fileNames'][0]
-							return_msg = shortener.shorten_url(sd.link(results['fileIDs'][0])['link'])
+							return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][0])['link'])
 						elif len(results['fileNames']) < 5:
 							return_msg = 'Did you mean:'
 							for a in range(len(results['fileNames'])):
 								a = '%d. %s' % (a+1, results['fileNames'][a] + '\n')
 					else:
 						return_msg = 'Error: Command not found or incorrectly formated'
-					#if confirmation code, set the user to active user.is_active = True and user.put()
 					try:
 						self.log.info(return_msg)
 						user.sms(return_msg)
