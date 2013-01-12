@@ -64,13 +64,13 @@ class Worker(multiprocessing.Process):
 						results = self.traverse(sd, 'me/skydrive', split_txt[1].lower())
 						self.log.info(results)
 
-						if len(results['fileNames']) == 0:
+						if len(results['file_names']) == 0:
 							pass
 
 						# Exactly 1 match found, return the shortened URL
-						elif len(results['fileNames']) == 1:
-							self.log.info(results['fileNames'])
-							return_msg = shortener.shorten_url(sd.link(results['fileIDs'][0])['link'])
+						elif len(results['file_names']) == 1:
+							self.log.info(results['file_names'])
+							return_msg = shortener.shorten_url(sd.link(results['file_ids'][0])['link'])
 
 
 						#Multiple results found, send them to the user so he/she can pick
@@ -86,8 +86,8 @@ class Worker(multiprocessing.Process):
 
 						#A lot of results found, tell the user to refine the search
 						else:
-							return_msg = "Search returned %d results. Please narrow your search, or text \'disp\' to display all results" % len(results['fileNames'])
-							user.requested_files = results['fileIDs'] #**
+							return_msg = "Search returned %d results. Please narrow your search, or text \'disp\' to display all results" % len(results['file_names'])
+							user.requested_files = results['file_ids'] #**
 							user.put()
 							
 					# allow selecting from menu of files
