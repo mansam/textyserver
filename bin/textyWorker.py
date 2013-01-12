@@ -63,7 +63,7 @@ class Worker(multiprocessing.Process):
 				phone_num = body[0]
 				txt = body[1].split(' ', 1)
 
-				command = txt[0]
+				command = txt[0].lower()
 				if len(txt) > 1:
 					args = txt[1]
 				else:
@@ -113,6 +113,11 @@ class Worker(multiprocessing.Process):
 		shortener = Googl()
 		return shortener.shorten_url(link)
 
+	def bitly_link(self, link):
+		from pyshorturl import Bitly, BitlyError
+		bitly = Bitly(boto.config.get("bitly", "username"), boto.config.get('bitly', "api_key"))
+		return bitly.shorten_url(link)
+
 	def quota_command(self, sd, user, args):
 		ans = sd.get_quota()
 		return 'You have %f GB availible out of %f GB total' % (ans[0]/float(1000000000), ans[1]/float(1000000000))		
@@ -122,7 +127,7 @@ class Worker(multiprocessing.Process):
 		try:
 			selection = int(number)
 			if (0 < selection <= len(user.requested_files)):
-				return_msg = self.shorten_link(sd.link(user.requested_files[selection-1])['link'])
+				return_msg = self.bitly_link(sd.link(user.requested_files[selection-1])['link'])
 				user.requested_files = []
 				user.put()
 		except:
@@ -138,7 +143,7 @@ class Worker(multiprocessing.Process):
 		# Exactly 1 match found, return the shortened URL
 		elif len(results['file_names']) == 1:
 			self.log.info(results['file_names'])
-			return self.shorten_link(sd.link(results['file_ids'][0])['link'])
+			return self.bitly_link(sd.link(results['file_ids'][0])['link'])
 
 		# Multiple results found, send them to the user so he/she can pick
 		elif len(results['file_names']) < DISPLAY_CUTOFF or display_more:
