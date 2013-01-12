@@ -28,8 +28,8 @@ class UserHandler(RequestHandler):
 
 					resp = getLiveConnectTokens(auth_code)
 	
-					user_params["auth_token"] = response["access_token"]
-					user_params["refresh_token"] = response["refresh_token"]
+					user_params["auth_token"] = resp["access_token"]
+					user_params["refresh_token"] = resp["refresh_token"]
 					createUser(user_params)
 					try:
 						challenge = getChallengeCode()
