@@ -9,7 +9,7 @@ class Worker(multiprocessing.Process):
 	def __init__(self):
 		super(Worker, self).__init__()
 		self.sqs = boto.connect_sqs()
-		self.text_queue = sqs.lookup('texts')
+		self.text_queue = self.sqs.lookup('texts')
 		self.log = logging.getLogger('texty.workers')
 
 	def run(self):
@@ -22,7 +22,7 @@ class Worker(multiprocessing.Process):
 				user = TextyUser.find(number=phone_num).next()
 				user.sms('got your message')
 			else:
-				self.log('Waiting.')
+				self.log.info('Waiting.')
 
 if __name__ == "__main__":
 
