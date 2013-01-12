@@ -1,5 +1,6 @@
 from botoweb.appserver.handlers import RequestHandler
 import logging
+import boto
 log = logging.getLogger('texty.twilioHandler')
 
 class TwilioHandler(RequestHandler):
