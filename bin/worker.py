@@ -18,12 +18,6 @@ class Worker(multiprocessing.Process):
 	def __init__(self):
 		super(Worker, self).__init__()
 
-		#Create and set up the connection to SkyDrive
-		#client_secret and client_id do not change from user to user
-		self.sd = skydrive.api_v5.SkyDriveAPI()
-		self.sd.client_id = CLIENT_ID
-		self.sd.client_secret = CLIENT_SECRET
-
 		self.sqs = boto.connect_sqs()
 		self.text_queue = self.sqs.lookup('texts')
 		self.log = logging.getLogger('texty.workers')
@@ -37,6 +31,12 @@ class Worker(multiprocessing.Process):
 
 			msg = self.text_queue.read()
 			if msg:
+				# Create and set up the connection to SkyDrive
+				# client_secret and client_id do not change from user to user
+				sd = skydrive.api_v5.SkyDriveAPI()
+				sd.client_id = CLIENT_ID
+				sd.client_secret = CLIENT_SECRET
+				
 				#Consists of a phone number and a text message body
 				body = json.loads(msg.get_body())
 				phone_num = body[0]
@@ -47,20 +47,20 @@ class Worker(multiprocessing.Process):
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
-					self.sd.auth_access_token = user.auth_token
-					self.sd.auth_refresh_token = user.refresh_token
+					sd.auth_access_token = user.auth_token
+					sd.auth_refresh_token = user.refresh_token
 
 					# parse text commands
 					if split_txt[0] == 'get' and len(split_txt) == 2:
 
 						results = []
-						results = self.traverse('me/skydrive', split_txt[1].lower())
+						results = self.traverse(sd, 'me/skydrive', split_txt[1].lower())
 						self.log.info(results)
 
 						# Exactly 1 match found, return the shortened URL
 						if len(results['fileNames']) == 1:
 							self.log.info(results['fileNames'])
-							return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][0])['link'])
+							return_msg = shortener.shorten_url(sd.link(results['fileIDs'][0])['link'])
 						elif len(results['fileNames']) < 5:
 							return_msg = 'Type "choose X" to select:\n'
 							for a in range(len(results['fileNames'])):
@@ -78,7 +78,7 @@ class Worker(multiprocessing.Process):
 						try:
 							selection = int(split_txt[1])
 							if (0 < selection <= len(user.requested_files)):
-								return_msg = shortener.shorten_url(self.sd.link(results['fileIDs'][selection-1])['link'])
+								return_msg = shortener.shorten_url(sd.link(results['fileIDs'][selection-1])['link'])
 							user.requested_files = []
 							user.put()
 						except:
@@ -104,14 +104,17 @@ class Worker(multiprocessing.Process):
 	
 
 	#Traverses the SkyDrive, starting from the location given by path.
-	def traverse(self, path, searchTerm, filesFound = [], filesFoundIDs = []):
-		ls = self.sd.listdir(path)
+	def traverse(self, sd, path, searchTerm, filesFound = [], filesFoundIDs = []):
+		ls = sd.listdir(path)
 		for a in range(len(ls)):
 			if ls[a]['type'] == u'folder':
 				self.traverse(ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
 			elif ((ls[a]['name'].lower()).find(searchTerm) != -1) and (ls[a]['type'] == u'file'):
+
+				self.log.info('Appending files found.')
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
+				self.log.info(filesFoundIDs)
 		return {'fileNames':filesFound, 'fileIDs':filesFoundIDs}
 
 
