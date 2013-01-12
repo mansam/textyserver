@@ -92,7 +92,7 @@ class Worker(multiprocessing.Process):
 		split_url = args.split('/') #name it will be given on the skydrive
 		temp = tempfile.NamedTemporaryFile(prefix='note_', dir='/tmp', delete=True)
 		upload_name = split_url[len(split_url)-1]
-		f = urllib2.urlopen(split_txt[1])
+		f = urllib2.urlopen(args[1])
 		data = f.read()
 		temp.write(data)
 		sd.put((upload_name, file_name), 'me/skydrive')
@@ -149,7 +149,7 @@ class Worker(multiprocessing.Process):
 		import os
 		temp = tempfile.NamedTemporaryFile(prefix='note_', suffix='.txt', dir='/tmp', delete=True)
 		file_name = temp.name
-		temp.write(split_txt[1])
+		temp.write(args)
 		base_name = os.path.splitext(file_name)[0]
 		sd.put((base_name, file_name), 'me/skydrive')
 		temp.close()
