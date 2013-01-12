@@ -134,7 +134,7 @@ class Worker(multiprocessing.Process):
 	def generate_menu(self, file_names):
 		menu = 'Enter # of selection: \n'
 		for i in range(0, len(file_names)):
-			option = '#%d. %s\n' % (option + 1, file_names[i])
+			option = '#%d. %s\n' % (i + 1, file_names[i])
 			menu += option
 		return menu
 
