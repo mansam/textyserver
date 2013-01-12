@@ -123,4 +123,4 @@ if __name__ == "__main__":
 	for i in range(0, num_workers):
 		w = Worker()
 		w.start()
-		workers.append[w]
+		workers.append(w)
