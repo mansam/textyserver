@@ -18,12 +18,6 @@ class Worker(multiprocessing.Process):
 	def __init__(self):
 		super(Worker, self).__init__()
 
-		#Create and set up the connection to SkyDrive
-		#client_secret and client_id do not change from user to user
-		self.sd = skydrive.api_v5.SkyDriveAPI()
-		self.sd.client_id = CLIENT_ID
-		self.sd.client_secret = CLIENT_SECRET
-
 		self.sqs = boto.connect_sqs()
 		self.text_queue = self.sqs.lookup('texts')
 		self.log = logging.getLogger('texty.workers')
@@ -37,6 +31,12 @@ class Worker(multiprocessing.Process):
 
 			msg = self.text_queue.read()
 			if msg:
+				# Create and set up the connection to SkyDrive
+				# client_secret and client_id do not change from user to user
+				self.sd = skydrive.api_v5.SkyDriveAPI()
+				self.sd.client_id = CLIENT_ID
+				self.sd.client_secret = CLIENT_SECRET
+				
 				#Consists of a phone number and a text message body
 				body = json.loads(msg.get_body())
 				phone_num = body[0]
