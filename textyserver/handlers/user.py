@@ -41,7 +41,7 @@ class UserHandler(RequestHandler):
 						# retry 
 						raise
 					try:
-						user.sms(challenge)
+						user.sms("Texty Confirmation: %s" % challenge)
 					except Exception:
 						# deal with twilio errors
 						raise
@@ -57,7 +57,7 @@ class UserHandler(RequestHandler):
 			raise NotFound("Invalid challenge code.")
 		user.is_active = True
 		user.put()
-		user.sms('Thanks for signing up with Texty!')
+		user.sms('Thanks for signing up with Texty! Text HELP for commands.')
 
 		return response
 
