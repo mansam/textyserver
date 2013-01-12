@@ -101,21 +101,21 @@ class Worker(multiprocessing.Process):
 	#Helps a user find a file
 	def findFile(self, searchTerm, user):
 		print 'blah'
-	
 
-	#Traverses the SkyDrive, starting from the location given by path.
-	def traverse(self, sd, path, searchTerm, filesFound = [], filesFoundIDs = []):
+	def traverse(sd, path, searchTerm):
+		file_names = []
+		file_ids = []
 		ls = sd.listdir(path)
-		for a in range(len(ls)):
-			if ls[a]['type'] == u'folder':
-				garbage = self.traverse(sd, ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
-			elif ((ls[a]['name'].lower()).find(searchTerm) != -1) and (ls[a]['type'] == u'file'):
-				self.log.info('Appending files found.')
-				filesFound.append(ls[a]['name'])
-				filesFoundIDs.append(ls[a]['id'])
-				self.log.info(filesFoundIDs)
-		return {'fileNames':filesFound, 'fileIDs':filesFoundIDs}
-
+		for f in files:
+			if f['type'] == 'folder':
+				results_dict = self.traverse(sd, f['id'], searchTerm)
+				file_names += results_dict["file_names"]
+				file_ids += results_dict["file_ids"]
+			elif f['name'].lower().find(searchTerm) != 1:
+				self.log.info('Found %s.' % f['name'])
+				file_names.append(f['name'])
+				file_ids.append(f['id'])
+		return {'file_names':file_names, 'file_ids': file_ids}
 
 if __name__ == "__main__":
 
