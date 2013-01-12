@@ -48,8 +48,8 @@ class Worker(multiprocessing.Process):
 					return_msg = 'Error: Command not found or incorrectly formated'
 				try:
 					user = TextyUser.find(phone=phone_num).next()
-					sd.auth_access_token = user.auth_token
-					sd.auth_refresh_token = user.refresh_token
+					self.sd.auth_access_token = user.auth_token
+					self.sd.auth_refresh_token = user.refresh_token
 
 					#if confirmation code, set the user to active user.is_active = True and user.put()
 					try:
@@ -68,10 +68,12 @@ class Worker(multiprocessing.Process):
 
 	#Traverses the SkyDrive, starting from the location given by path.
 	def traverse(self, path):
-		ls = sd.listdir(path)
+		filesFound = []
+		filesFoundIDs = []
+		ls = self.sd.listdir(path)
 		for a in range(len(ls)):
 			if ls[a]['type'] == u'folder':
-				traverse(ls[a]['id'])
+				self.traverse(ls[a]['id'])
 			elif ls[a]['name'].find(searchTerm) != -1:
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
