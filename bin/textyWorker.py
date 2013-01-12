@@ -50,9 +50,13 @@ class Worker(multiprocessing.Process):
 				body = json.loads(msg.get_body())
 
 				phone_num = body[0]
-				txt = body[1]
+				txt = body[1].split(' ', 1)
 
-				command, args = txt.split(' ', 1)
+				command = txt[0]
+				if len(txt) > 1
+					args = txt[1]
+				else:
+					args = ""
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
