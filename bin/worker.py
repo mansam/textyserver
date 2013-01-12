@@ -25,7 +25,7 @@ class Worker(multiprocessing.Process):
 				phone_num = body[0]
 				txt = body[1]
 				try:
-					user = TextyUser.find(number=phone_num).next()
+					user = TextyUser.find(phone=phone_num).next()
 					try:
 						user.sms('Got your message.')
 					except:
