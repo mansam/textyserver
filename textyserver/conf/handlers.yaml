@@ -1,0 +1,3 @@
+- url: /$
+  handler: textyserver.handlers.IndexHandler
+  name: Index

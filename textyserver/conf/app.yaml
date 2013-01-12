@@ -1,0 +1,4 @@
+format: json
+# allow_origin: "*"
+# allow_headers: X-Api-Version
+# expose_headers:
