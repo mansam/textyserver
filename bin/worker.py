@@ -20,7 +20,9 @@ class Worker(multiprocessing.Process):
 
 			msg = self.text_queue.read()
 			if msg:
-				phone_num, body = msg.get_body()
+				body = msg.get_body()
+				phone_num = body[0]
+				txt = body[1]
 				user = TextyUser.find(number=phone_num).next()
 				user.sms('got your message')
 			else:
