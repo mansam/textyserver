@@ -10,4 +10,4 @@ class TextyUser(User):
 
 	def put(self):
 		self.username = self.email
-		return User.put()
+		return User.put(self)
