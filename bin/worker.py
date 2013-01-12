@@ -3,6 +3,7 @@ from textyserver.resources.user import TextyUser
 import multiprocessing
 import boto
 import logging
+import signal
 
 class Worker(multiprocessing.Process):
 
@@ -11,10 +12,11 @@ class Worker(multiprocessing.Process):
 		self.sqs = boto.connect_sqs()
 		self.text_queue = self.sqs.lookup('texts')
 		self.log = logging.getLogger('texty.workers')
+		self.running = True
 
 	def run(self):
 
-		while running:
+		while self.running:
 
 			msg = self.text_queue.read()
 			if msg:
