@@ -41,7 +41,7 @@ class Worker(multiprocessing.Process):
 				
 				if split_txt[0] == 'get' and len(split_txt) == 2:
 
-					results = traverse('me/skydrive', split_txt[1])
+					results = self.traverse('me/skydrive', split_txt[1])
 					if len(results['fileNames']) == 1:
 						return_msg = results['fileNames'][0]
 #					elif len(results['fileNames'] < 5
