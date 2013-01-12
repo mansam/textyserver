@@ -71,7 +71,7 @@ class Worker(multiprocessing.Process):
 						else:
 							return_msg = "Search returned %d results. Please narrow your search." % len(results['fileNames'])
 					# allow selecting from menu of files
-					elif split_text[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
+					elif split_txt[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
 						try:
 							selection = int(split_txt[1])
 							if (0 < selection <= len(user.requested_files)):
