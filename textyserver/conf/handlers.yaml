@@ -1,6 +1,6 @@
 - url: /twilio
-  handler: textyserver.handlers.TwilioHandler
+  handler: textyserver.handlers.twilio.TwilioHandler
   name: Twilio
 - url: /user
-  handler: textyserver.handlers.UserHandler
+  handler: textyserver.handlers.user.UserHandler
   name: User
