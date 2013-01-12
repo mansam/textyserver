@@ -84,7 +84,7 @@ def getLiveConnectTokens(auth_code):
 		"client_secret": textyserver.CLIENT_SECRET
 	}
 	live_connect_url = base_url + urllib.urlencode(params)
-	return requests.post(live_connect_url).json()
+	return requests.post(live_connect_url, headers={"content-type":"application/x-www-form-urlencoded"}).json()
 
 def createUser(params):
 	required_params = ["email", "phone", "auth_token", "refresh_token"]
