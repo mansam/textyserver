@@ -87,16 +87,11 @@ class Worker(multiprocessing.Process):
 				self.text_queue.delete_message(msg)
 
 	def download_command(self, sd, user, args):
-		import tempfile
-
 		split_url = args.split('/') #name it will be given on the skydrive
-		temp = tempfile.NamedTemporaryFile(prefix='note_', dir='/tmp', delete=True)
 		upload_name = split_url[len(split_url)-1]
 		f = urllib2.urlopen(args[1])
 		data = f.read()
-		temp.write(data)
-		sd.put((upload_name, file_name), 'me/skydrive')
-		temp.close()
+		sd.put((upload_name, data), 'me/skydrive')
 		return "Downloaded %s to skydrive." % upload_name
 
 	def shorten_link(self, link):
