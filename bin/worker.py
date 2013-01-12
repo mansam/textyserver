@@ -8,6 +8,7 @@ import json
 import skydrive
 import urllib
 from skydrive import api_v5, conf
+from pyshorturl import Googl
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
 CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
@@ -29,6 +30,8 @@ class Worker(multiprocessing.Process):
 		self.running = True
 
 	def run(self):
+		
+		shortener = Googl()
 
 		while self.running:
 
@@ -51,14 +54,16 @@ class Worker(multiprocessing.Process):
 
 						results = self.traverse('me/skydrive', split_txt[1])
 						self.log.info(results)
+
+						#Exactly 1 match found, return the shortened URL
 						if len(results['fileNames']) == 1:
 							self.log.info(results['fileNames'])
-							return_msg = results['fileNames'][0]
+							#return_msg = results['fileNames'][0]
+							return_msg = shortener.shorten_url(sd.link(results['fileIDs'][0])['link'])
 						elif len(results['fileNames']) < 5:
 							return_msg = 'Did you mean:'
 							for a in range(len(results['fileNames'])):
-								a = '%d', a+1
-								a = a + results['fileNames'][a] + '\n'
+								a = '%d. %s' % (a+1, results['fileNames'][a] + '\n')
 					else:
 						return_msg = 'Error: Command not found or incorrectly formated'
 					#if confirmation code, set the user to active user.is_active = True and user.put()
