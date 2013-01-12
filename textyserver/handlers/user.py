@@ -13,31 +13,33 @@ log = logging.getLogger('texty.userHandler')
 class UserHandler(RequestHandler):
 
 	def _get(self, request, response, id=None):
-		params = id.split('/')
-		if params[0] == "code":
-			log.info(request)
-			auth_code = request.params["code"]
-			email = request.params["email"]
-			response = getLiveConnectTokens(auth_code)
-			user = TextyUser.find(email=email).next()
-			user.auth_token = response["access_token"]
-			user.refresh_token = response["refresh_token"]
-			user.put()
-			try:
-				challenge = getChallengeCode()
-			except Exception:
-				# retry 
-				raise
-			try:
-				user.sms(challenge)
-			except Exception:
-				# deal with twilio errors
-				raise
+		if id:
+			params = id.split('/')
+			if params[0] == "code":
+				log.info(request)
+				auth_code = request.params["code"]
+				email = request.params["email"]
+				response = getLiveConnectTokens(auth_code)
+				user = TextyUser.find(email=email).next()
+				user.auth_token = response["access_token"]
+				user.refresh_token = response["refresh_token"]
+				user.put()
+				try:
+					challenge = getChallengeCode()
+				except Exception:
+					# retry 
+					raise
+				try:
+					user.sms(challenge)
+				except Exception:
+					# deal with twilio errors
+					raise
 		return response
 
 	def _post(self, request, response, id=None):
 		response.content_type = "application/json"
-		params = id.split('/')
+		if id:
+			params = id.split('/')
 
 		user = createUser(request.params)
 		requestLiveConnectCode(user.email)
@@ -94,7 +96,7 @@ def requestLiveConnectCode(email):
 	return requests.get(live_connect_url)
 
 def createUser(params):
-	required_params = ["email", "token", "number"]
+	required_params = ["email", "number"]
 	log.info(params)
 	missing_fields = []
 	for param in required_params:
@@ -105,7 +107,6 @@ def createUser(params):
 
 	user = TextyUser()
 	user.email = params["email"]
-	user.auth_token = params["token"] 
 	user.phone = params["number"]
 
 	return user.put()
