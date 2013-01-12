@@ -4,33 +4,57 @@ from textyserver.resources.user import TextyUser
 import logging
 import json
 import boto
+import urllib
+import requests
+import textyserver
 
 log = logging.getLogger('texty.userHandler')
 
 class UserHandler(RequestHandler):
 
 	def _get(self, request, response, id=None):
-		param = id.split('/')[0]
-		# if param == "code":
-		# 	code = request.params["code"]
+		if id:
+			params = id.split('/')
+			if params:
+				if params[0] == "code":
+					log.info(request)
+					user_params = {}
+
+					auth_code = request.params["code"]
+					log.info(auth_code)
+					state = request.params["state"]
+					phone, email = state.split(' ')
+					user_params["phone"] = phone
+					user_params["email"] = email
+
+					resp = getLiveConnectTokens(auth_code)
+					log.info(resp)
+	
+					user_params["auth_token"] = resp["access_token"]
+					user_params["refresh_token"] = resp["refresh_token"]
+					createUser(user_params)
+					try:
+						challenge = getChallengeCode()
+					except Exception:
+						# retry 
+						raise
+					try:
+						user.sms(challenge)
+					except Exception:
+						# deal with twilio errors
+						raise
+					response.body = json.dumps(user.to_dict()) 
+		return response
 
 	def _post(self, request, response, id=None):
 		response.content_type = "application/json"
-
-		user = createUser(request.params)
-		try:
-			challenge = getChallengeCode()
-		except Exception:
-			# retry 
-			raise
-
-		try:
-			user.sms(challenge)
-		except Exception:
-			# deal with twilio errors
-			raise
-
-		response.body = json.dumps(user.to_dict()) 
+		if id:
+			params = id.split('/')
+			if params:
+				if params[0] == "token":
+					pass
+		else:
+			pass
 		return response
 
 	def _put(self, request, response, id=None):
@@ -52,8 +76,19 @@ class UserHandler(RequestHandler):
 
 		return response
 
+def getLiveConnectTokens(auth_code):
+	base_url = "https://login.live.com/oauth20_token.srf"
+	params = {
+		"grant_type" : "authorization_code",
+		"redirect_uri" : "http://www.buildanavy.com/user/code",
+		"client_id": textyserver.CLIENT_ID,
+		"client_secret": textyserver.CLIENT_SECRET,
+		"code": auth_code
+	}
+	return requests.post(base_url, data=params, headers={"content-type":"application/x-www-form-urlencoded"}).json()
+
 def createUser(params):
-	required_params = ["email", "token", "number"]
+	required_params = ["email", "phone", "auth_token", "refresh_token"]
 	log.info(params)
 	missing_fields = []
 	for param in required_params:
@@ -64,8 +99,9 @@ def createUser(params):
 
 	user = TextyUser()
 	user.email = params["email"]
-	user.auth_token = params["token"] 
-	user.phone = params["number"]
+	user.phone = params["phone"]
+	user.auth_token = params["auth_token"]
+	user.refresh_token = params["refresh_token"]
 
 	return user.put()
 
