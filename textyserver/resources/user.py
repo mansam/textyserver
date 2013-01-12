@@ -9,7 +9,7 @@ class TextyUser(User):
 
 	is_active = BooleanProperty(verbose_name="Is Active", default=False)
 	refresh_token = StringProperty(verbose_name="Skydrive Refresh Token")
-	phone = property.StringProperty(verbose_name="Phone Number", unique=True) # Used for SMS notify
+	phone = StringProperty(verbose_name="Phone Number", unique=True) # Used for SMS notify
 
 	def put(self):
 		self.username = self.email
