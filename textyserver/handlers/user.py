@@ -1,8 +1,9 @@
 from botoweb.appserver.handlers import RequestHandler
 from botoweb.exceptions import BadRequest
 from textyserver.resources.user import TextyUser
-
 import logging
+import json
+
 log = logging.getLogger('texty.userHandler')
 
 class UserHandler(RequestHandler):
@@ -23,6 +24,7 @@ class UserHandler(RequestHandler):
 			# deal with twilio errors
 			raise e
 
+		response.body = json.dumps(user.to_dict()) 
 		return response
 
 def createUser(params):
