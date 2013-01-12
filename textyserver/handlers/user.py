@@ -21,7 +21,7 @@ class UserHandler(RequestHandler):
 					user_params = {}
 
 					auth_code = request.params["code"]
-					log.info(authorization_code)
+					log.info(auth_code)
 					state = request.params["state"]
 					phone, email = state.split(' ')
 					user_params["phone"] = phone
