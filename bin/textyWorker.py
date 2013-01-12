@@ -104,7 +104,7 @@ class Worker(multiprocessing.Process):
 		self.log.info('before f.read()')
 		data = f.read()
 		self.log.info('before while loop')
-		with open(file_name, "wb") as code:
+		with open(upload_name, "wb") as code:
 			code.write(data)
 		self.log.info('before close')
 		f.close()
