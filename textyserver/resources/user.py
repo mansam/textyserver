@@ -11,6 +11,7 @@ class TextyUser(User):
 	refresh_token = StringProperty(verbose_name="Skydrive Refresh Token")
 	phone = StringProperty(verbose_name="Phone Number", unique=True) # Used for SMS notify
 	requested_files = ListProperty(str, verbose_name="Last Requested Files")
+	challenge = StringProperty(verbose_name='Confirmation Challenge')
 
 	def put(self):
 		self.username = self.email

@@ -1,5 +1,5 @@
 from botoweb.appserver.handlers import RequestHandler
-from botoweb.exceptions import BadRequest, NotFound
+from botoweb.exceptions import BadRequest, NotFound, TemporaryRedirect
 from textyserver.resources.user import TextyUser
 import logging
 import json
@@ -34,27 +34,30 @@ class UserHandler(RequestHandler):
 					user_params["refresh_token"] = resp["refresh_token"]
 					user = createUser(user_params)
 					try:
-						challenge = getChallengeCode()
+						user.challenge = getChallengeCode()
+						user.put()
 					except Exception:
 						# retry 
 						raise
 					try:
-						user.sms(challenge)
+						user.sms(user.challenge)
 					except Exception:
 						# deal with twilio errors
 						raise
-					response.body = json.dumps(user.to_dict()) 
+					raise TemporaryRedirect('http://www.buildanavy.com/authcode.html')
 		return response
 
 	def _post(self, request, response, id=None):
 		response.content_type = "application/json"
-		if id:
-			params = id.split('/')
-			if params:
-				if params[0] == "token":
-					pass
-		else:
-			pass
+		
+		try:
+			user = TextyUser.find(challenge=requests.param["challenge"])
+		except StopIteration:
+			raise NotFound("Invalid challenge code.")
+		user.is_active = True
+		user.put()
+		user.sms('Thanks for signing up with Texty!')
+
 		return response
 
 	def _put(self, request, response, id=None):
