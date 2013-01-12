@@ -108,7 +108,7 @@ class Worker(multiprocessing.Process):
 		ls = sd.listdir(path)
 		for a in range(len(ls)):
 			if ls[a]['type'] == u'folder':
-				self.traverse(ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
+				self.traverse(sd, ls[a]['id'], searchTerm, filesFound, filesFoundIDs)
 			elif (ls[a]['name'].lower()).find(searchTerm) != -1:
 				filesFound.append(ls[a]['name'])
 				filesFoundIDs.append(ls[a]['id'])
