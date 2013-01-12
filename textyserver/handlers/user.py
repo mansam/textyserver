@@ -32,7 +32,7 @@ def createUser(params):
 	log.info(params)
 	missing_fields = []
 	for param in required_params:
-		if param not in rparams:
+		if param not in params:
 			missing_fields.append(param)
 		if missing_fields:
 			raise BadRequest("Missing required field(s): %s" % " ".join(missing_fields))
