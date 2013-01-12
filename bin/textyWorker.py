@@ -64,12 +64,12 @@ class Worker(multiprocessing.Process):
 
 						# Exactly 1 match found, return the shortened URL
 
-						if len(results['fileNames']) == 1:
-							self.log.info(results['fileNames'])
-							return_msg = shortener.shorten_url(sd.link(results['fileIDs'][0])['link'])
+						if len(results['file_names']) == 1:
+							self.log.info(results['file_names'])
+							return_msg = shortener.shorten_url(sd.link(results['file_ids'][0])['link'])
 
 						#Multiple results found, send them to the user so he/she can pick
-						elif len(results['fileNames']) < DISPLAY_CUTOFF:
+						elif len(results['file_names']) < DISPLAY_CUTOFF:
 							return_msg = 'Type "choose X" to select:\n'
 							for a in range(len(results['file_names'])):
 								a = '%d. %s' % (a+1, results['file_names'][a] + '\n')
@@ -81,8 +81,8 @@ class Worker(multiprocessing.Process):
 
 						#A lot of results found, tell the user to refine the search
 						else:
-							return_msg = "Search returned %d results. Please narrow your search, or text \'disp\' to display all results" % len(results['fileNames'])
-							user.requested_files = results['fileIDs'] #**
+							return_msg = "Search returned %d results. Please narrow your search, or text \'disp\' to display all results" % len(results['file_names'])
+							user.requested_files = results['file_ids'] #**
 
 					# allow selecting from menu of files
 					elif split_txt[0] == 'choose' and len(split_txt) == 2 and len(user.requested_files):
@@ -99,10 +99,10 @@ class Worker(multiprocessing.Process):
 					#Note that technically the user could skip the 'disp' step, and just 'choose' blindly from the list
 					elif split_txt[0] == 'disp' and len(split_txt) == 1 and len(user.requested_files):
 						return_msg = 'Type "choose X" to select:\n'
-						for a in range(len(user.requested_files['fileNames'])):
-							a = '%d. %s' % (a+1, user.requested_files['fileNames'][a] + '\n')
+						for a in range(len(user.requested_files['file_names'])):
+							a = '%d. %s' % (a+1, user.requested_files['file_names'][a] + '\n')
 							return_msg += a
-						user.requested_files = results['fileIDs']
+						user.requested_files = results['file_ids']
 						user.put()
 							
 					else:
