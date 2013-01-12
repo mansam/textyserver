@@ -23,8 +23,18 @@ class Worker(multiprocessing.Process):
 				body = msg.get_body()
 				phone_num = body[0]
 				txt = body[1]
-				user = TextyUser.find(number=phone_num).next()
-				user.sms('got your message')
+				try:
+					user = TextyUser.find(number=phone_num).next()
+					try:
+						user.sms('Got your message.')
+					except:
+						# failed to send message
+						self.log.exception('Failed sending sms to %s.' % phone_num)
+				except StopIteration:
+					self.log.info("Didn't recognize number: %s" % phone_num)
+				
+				self.text_queue.delete_message(msg)
+				
 			else:
 				self.log.info('Waiting.')
 
