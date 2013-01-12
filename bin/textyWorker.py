@@ -38,8 +38,7 @@ class Worker(multiprocessing.Process):
 			"findall": lambda sd, user, args: self.ls_command(sd, user, args, display_more=True),
 			"note": self.note_command,
 			"n": self.note_command,
-			"?": self.help_command,
-			"f"
+			"?": self.help_command
 		}	
 		
 	def run(self):
@@ -170,6 +169,9 @@ class Worker(multiprocessing.Process):
 			option = '#%d. %s\n' % (i + 1, file_names[i])
 			menu += option
 		return menu
+
+	def help_command(self, sd, user, args):
+		return "help message"
 
 	def traverse(self, sd, path, searchTerm):
 		file_names = []
