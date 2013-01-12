@@ -8,6 +8,7 @@ from botoweb.db.property import ReferenceProperty
 class TextyUser(User):
 
 	is_active = BooleanProperty(verbose_name="Is Active", default=False)
+	refresh_token = StringProperty(verbose_name="Skydrive Refresh Token")
 
 	def put(self):
 		self.username = self.email

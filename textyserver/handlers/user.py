@@ -1,5 +1,5 @@
 from botoweb.appserver.handlers import RequestHandler
-from botoweb.exceptions import BadRequest
+from botoweb.exceptions import BadRequest, NotFound
 from textyserver.resources.user import TextyUser
 import logging
 import json
@@ -28,6 +28,25 @@ class UserHandler(RequestHandler):
 		response.body = json.dumps(user.to_dict()) 
 		return response
 
+	def _put(self, request, response, id=None):
+		required_params = ["email", "refresh"]
+		missing_fields = []
+		for param in required_params:
+			if param not in request.params:
+				missing_fields.append(param)
+		if missing_fields:
+			raise BadRequest("Missing required field(s): %s" % " ".join(missing_fields))
+
+		try:
+			user = TextyUser.find(email=request.params.email).next()
+		except StopIteration:
+			raise NotFound("No such user.")
+
+		user.refresh_token = request.params["refresh"]
+		user.put()
+
+		return response
+
 def createUser(params):
 	required_params = ["email", "token", "number"]
 	log.info(params)
@@ -35,8 +54,8 @@ def createUser(params):
 	for param in required_params:
 		if param not in params:
 			missing_fields.append(param)
-		if missing_fields:
-			raise BadRequest("Missing required field(s): %s" % " ".join(missing_fields))
+	if missing_fields:
+		raise BadRequest("Missing required field(s): %s" % " ".join(missing_fields))
 
 	user = TextyUser()
 	user.email = params["email"]
