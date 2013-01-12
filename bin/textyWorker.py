@@ -73,6 +73,7 @@ class Worker(multiprocessing.Process):
 					sd.auth_refresh_token = user.refresh_token
 
 					if command in self.VALID_COMMANDS:
+						self.log.info(command)
 						return_msg = self.VALID_COMMANDS[command](sd, user, args)
 
 					elif command.isdigit():
