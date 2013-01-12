@@ -15,36 +15,39 @@ class UserHandler(RequestHandler):
 	def _get(self, request, response, id=None):
 		if id:
 			params = id.split('/')
-			if params[0] == "code":
-				log.info(request)
-				auth_code = request.params["code"]
-				email = request.params["email"]
-				response = getLiveConnectTokens(auth_code)
-				user = TextyUser.find(email=email).next()
-				user.auth_token = response["access_token"]
-				user.refresh_token = response["refresh_token"]
-				user.put()
-				try:
-					challenge = getChallengeCode()
-				except Exception:
-					# retry 
-					raise
-				try:
-					user.sms(challenge)
-				except Exception:
-					# deal with twilio errors
-					raise
+			if params:
+				if params[0] == "code":
+					log.info(request)
+					auth_code = request.params["code"]
+					email = request.params["email"]
+					getLiveConnectTokens(auth_code)
 		return response
 
 	def _post(self, request, response, id=None):
 		response.content_type = "application/json"
 		if id:
 			params = id.split('/')
+			if params:
+				if: params[0] == "token":
+					user = TextyUser.find(email=email).next()
+					user.auth_token = response["access_token"]
+					user.refresh_token = response["refresh_token"]
+					user.put()
+					try:
+						challenge = getChallengeCode()
+					except Exception:
+						# retry 
+						raise
+					try:
+						user.sms(challenge)
+					except Exception:
+						# deal with twilio errors
+						raise
+		else:
+			user = createUser(request.params)
+			requestLiveConnectCode(user.email)
+			response.body = json.dumps(user.to_dict()) 
 
-		user = createUser(request.params)
-		requestLiveConnectCode(user.email)
-
-		response.body = json.dumps(user.to_dict()) 
 		return response
 
 	def _put(self, request, response, id=None):
@@ -66,13 +69,14 @@ class UserHandler(RequestHandler):
 
 		return response
 
-def getLiveConnectTokens(auth_code):
+def getLiveConnectTokens(auth_code, email):
 	base_url = "https://login.live.com/oauth20_token.srf?"
 	params = {
 		"grant_type" : "authorization_code",
 		"redirect_url" : "https://api.buildanavy.com/user/token",
 		"client_id": textyserver.CLIENT_ID,
-		"client_secret": textyserver.CLIENT_SECRET
+		"client_secret": textyserver.CLIENT_SECRET,
+		"email": email
 	}
 	live_connect_url = base_url + urllib.urlencode(params)
 	return json.loads(requests.post(live_connect_url).json())
