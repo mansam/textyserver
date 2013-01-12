@@ -95,19 +95,20 @@ class Worker(multiprocessing.Process):
 				self.text_queue.delete_message(msg)
 
 	def download_command(self, sd, user, args):
+		self.log.info('entering dowload command with args: %s' % args)
 		split_args = args.split(' ', 1)
 		split_url = args.split('/') 
 		upload_name = split_url[len(split_url)-1] #name it will be given on the skydrive
-		print 'before opening the url'
+		self.log.info('before opening the url')
 		f = urllib2.urlopen(args[1])
-		print 'before f.read()'
+		self.log.info('before f.read()')
 		data = f.read()
-		print 'before while loop'
+		self.log.info('before while loop')
 		with open(file_name, "wb") as code:
 			code.write(data)
-		print 'before close'
+		self.log.info('before close')
 		f.close()
-		print 'before put'
+		self.log.info('before put')
 		sd.put((upload_name, os.getcwd()+upload_name), 'me/skydrive')
 		return "Downloaded %s to skydrive." % upload_name
 
