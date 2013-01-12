@@ -65,7 +65,6 @@ class UserHandler(RequestHandler):
 		return response
 
 def getLiveConnectTokens(auth_code):
-	client_id=CLIENT_ID&redirect_uri=REDIRECT_URI&client_secret=CLIENT_SECRET&code=AUTHORIZATION_CODE&grant_type=authorization_code
 	base_url = "https://login.live.com/oauth20_token.srf?"
 	params = {
 		"grant_type" : "authorization_code",
