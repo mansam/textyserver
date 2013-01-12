@@ -11,7 +11,7 @@ class TwilioHandler(RequestHandler):
 
 	def _post(self, request, response, id=None):
 		response.content_type = "text/plain"
-		log.info(request.params)
+		log.info(request.params["From"])
 		response.body = "Message received."
 		return response
 
