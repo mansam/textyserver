@@ -83,8 +83,7 @@ def getLiveConnectTokens(auth_code):
 		"redirect_uri" : "http:/www.buildanavy.com/user/code",
 		"client_id": textyserver.CLIENT_ID,
 		"client_secret": textyserver.CLIENT_SECRET,
-		"code": auth_code,
-		"grant_type": "authorization_code"
+		"code": auth_code
 	}
 	return requests.post(base_url, data=params, headers={"content-type":"application/x-www-form-urlencoded"}).json()
 
