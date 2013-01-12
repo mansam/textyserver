@@ -3,13 +3,14 @@ from botoweb.db.coremodel import Model
 from botoweb.db.property import StringProperty
 from botoweb.db.property import BooleanProperty
 from botoweb.db.property import DateTimeProperty
-from botoweb.db.property import ReferenceProperty
+from botoweb.db.property import ListProperty
 
 class TextyUser(User):
 
 	is_active = BooleanProperty(verbose_name="Is Active", default=False)
 	refresh_token = StringProperty(verbose_name="Skydrive Refresh Token")
 	phone = StringProperty(verbose_name="Phone Number", unique=True) # Used for SMS notify
+	requested_files = ListProperty(str, verbose_name="Last Requested Files")
 
 	def put(self):
 		self.username = self.email
