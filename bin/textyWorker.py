@@ -75,6 +75,9 @@ class Worker(multiprocessing.Process):
 
 				except StopIteration:
 					self.log.info("Didn't recognize number: %s" % phone_num)
+				except:
+					import traceback
+					traceback.print_exc()
 				
 				self.text_queue.delete_message(msg)
 
@@ -138,6 +141,7 @@ class Worker(multiprocessing.Process):
 	def traverse(self, sd, path, searchTerm):
 		file_names = []
 		file_ids = []
+		self.log(path)
 		files = sd.listdir(path)
 		for f in files:
 			if f['type'] == 'folder':
