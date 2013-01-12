@@ -52,7 +52,7 @@ class UserHandler(RequestHandler):
 		response.content_type = "application/json"
 		
 		try:
-			user = TextyUser.find(challenge=requests.param["challenge"])
+			user = TextyUser.find(challenge=request.param["challenge"]).next()
 		except StopIteration:
 			raise NotFound("Invalid challenge code.")
 		user.is_active = True
