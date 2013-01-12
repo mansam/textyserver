@@ -39,7 +39,8 @@ class Worker(multiprocessing.Process):
 				phone_num = body[0]
 				txt = body[1]
 				split_txt = txt.split(' ')
-				return_msg = ""
+				self.log.info(split_txt)
+				return_msg = "test"
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
@@ -60,7 +61,7 @@ class Worker(multiprocessing.Process):
 					#if confirmation code, set the user to active user.is_active = True and user.put()
 					try:
 						self.log.info(return_msg)
-						user.sms(urllib.quote_plus(return_msg))
+						user.sms(return_msg)
 					except:
 						# failed to send message
 						self.log.exception('Failed sending sms to %s.' % phone_num)
