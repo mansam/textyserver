@@ -39,7 +39,6 @@ def createUser(params):
 	user.email = params["email"]
 	user.auth_token = params["token"] 
 	user.number = params["number"]
-	user.status = 
 
 	return user.put()
 
