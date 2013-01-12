@@ -6,6 +6,7 @@ import logging
 import signal
 import json
 import skydrive
+import urllib
 from skydrive import api_v5, conf
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
@@ -38,7 +39,8 @@ class Worker(multiprocessing.Process):
 				phone_num = body[0]
 				txt = body[1]
 				split_txt = txt.split(' ')
-				return_msg = ""
+				self.log.info(split_txt)
+				return_msg = "test"
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
@@ -48,7 +50,9 @@ class Worker(multiprocessing.Process):
 					if split_txt[0] == 'get' and len(split_txt) == 2:
 
 						results = self.traverse('me/skydrive', split_txt[1])
+						self.log.info(results)
 						if len(results['fileNames']) == 1:
+							self.log.info(results['fileNames'])
 							return_msg = results['fileNames'][0]
 						elif len(results['fileNames']) < 5:
 							return_msg = 'Did you mean:'
@@ -59,6 +63,7 @@ class Worker(multiprocessing.Process):
 						return_msg = 'Error: Command not found or incorrectly formated'
 					#if confirmation code, set the user to active user.is_active = True and user.put()
 					try:
+						self.log.info(return_msg)
 						user.sms(return_msg)
 					except:
 						# failed to send message
@@ -67,10 +72,6 @@ class Worker(multiprocessing.Process):
 					self.log.info("Didn't recognize number: %s" % phone_num)
 				
 				self.text_queue.delete_message(msg)
-				
-			else:
-				self.log.info('Waiting.')
-
 
 	#Traverses the SkyDrive, starting from the location given by path.
 	def traverse(self, path, searchTerm):
