@@ -156,6 +156,8 @@ class Worker(multiprocessing.Process):
 
 	def note_command(self, sd, user, args):
 		file_name = 'note_'+strftime("%Y-%m-%d %H:%M:%S", localtime())+'.txt'
+		self.log.info('in note_command using file name: %s' % file_name)
+		self.log.info('in note_command using args: %s' % args)
 		sd.put((file_name, args), 'me/skydrive')
 		return "Wrote note %s to skydrive." % file_name.split('/')[-1]
 
