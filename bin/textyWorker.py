@@ -209,7 +209,7 @@ class Worker(multiprocessing.Process):
 		import math
 		message_segments = []
 		seg_len = MAX_MESSAGE_LENGTH - 20
-		chunks = math.ceil(len(sms_message)/float(seg_len))
+		chunks = int(math.ceil(len(sms_message)/float(seg_len)))
 		for i in range(0, chunks):
 			segment = sms_message[seg_len*i:seg_len*(i+1)]
 			segment += "(%d of %d)" % (i+1, chunks)
