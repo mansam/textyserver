@@ -8,14 +8,17 @@ import logging
 import signal
 import json
 import skydrive
-import urllib
 import urllib2
 import os
+import time
 from time import localtime, strftime
 
 CLIENT_ID = boto.config.get("Skydrive", "client_id")
 CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
 DISPLAY_CUTOFF = boto.config.get("Texty", "display_cutoff", 5)
+BACKOFF_STEP = 1
+BACKOFF_MAX = 20
+MAX_MESSAGE_LENGTH = 160
 
 class Worker(multiprocessing.Process):
 
@@ -26,7 +29,7 @@ class Worker(multiprocessing.Process):
 		self.text_queue = self.sqs.lookup('texts')
 		self.log = logging.getLogger('texty.workers')
 		self.running = True
-
+		self.backoff_level = 0
 		self.VALID_COMMANDS = {
 			"get": self.ls_command,
 			"find": self.ls_command,
@@ -45,13 +48,12 @@ class Worker(multiprocessing.Process):
 		}	
 		
 	def run(self):
-		
-		shortener = Googl()
 
 		while self.running:
 
 			msg = self.text_queue.read()
 			if msg:
+				self.backoff_level = 0
 				# Create and set up the connection to SkyDrive
 				# client_secret and client_id do not change from user to user
 				sd = skydrive.api_v5.SkyDriveAPI()
@@ -85,7 +87,12 @@ class Worker(multiprocessing.Process):
 						return_msg = 'Error: Command not found or incorrectly formated'
 					try:
 						self.log.info(return_msg)
-						user.sms(return_msg)
+						if len(return_msg) >= MAX_MESSAGE_LENGTH:
+							messages = self.split_message(return_msg)
+							for message in messages:
+								user.sms(message)
+						else:
+							user.sms(return_msg)
 					except:
 						# failed to send message
 						self.log.exception('Failed sending sms to %s.' % phone_num)
@@ -97,21 +104,21 @@ class Worker(multiprocessing.Process):
 					traceback.print_exc()
 				
 				self.text_queue.delete_message(msg)
+			else:
+				if self.backoff_level < BACKOFF_MAX:
+					self.backoff_level += BACKOFF_STEP
+				self.log.info("Sleeping %d seconds." % self.backoff_level)
+				time.sleep(self.backoff_level)
+
+
 
 	def download_command(self, sd, user, args):
-
-		import tempfile
-		temp = tempfile.NamedTemporaryFile(prefix='note_', suffix='.txt', dir='/tmp', delete=True)
 		split_url = args.split('/') 
 		upload_name = split_url[len(split_url)-1] #name it will be given on the skydrive
-		f = urllib2.urlopen(args)
-		data = f.read()
-#		with open(upload_name, "wb") as code:
-		with open(temp.name, "wb") as code:
-			code.write(data)
-		f.close()
-#		sd.put((upload_name, os.getcwd()+upload_name), 'me/skydrive')
-		sd.put((upload_name, temp.name), 'me/skydrive')
+		downloaded_file = urllib2.urlopen(args)
+		data = downloaded_file.read()
+		downloaded_file.close()
+		sd.put((upload_name, data), 'me/skydrive')
 		return "Downloaded %s to skydrive." % upload_name
 
 	def shorten_link(self, link):
@@ -170,7 +177,6 @@ class Worker(multiprocessing.Process):
 		self.log.info('in note_command using args: %s' % args)
 		sd.put((file_name, args), 'me/skydrive')
 		return "Wrote note %s to skydrive." % file_name.split('/')[-1]
-	
 
 	def generate_menu(self, file_names):
 		menu = 'Enter # of selection: \n'
@@ -198,6 +204,16 @@ class Worker(multiprocessing.Process):
 				file_names.append(f['name'])
 				file_ids.append(f['id'])
 		return {'file_names':file_names, 'file_ids': file_ids}
+
+	def split_message(self, sms_message):
+		message_segments = []
+		seg_len = MAX_MESSAGE_LENGTH - 20
+		chunks = len(sms_message)/seg_len
+		for i in range(0, chunks):
+			segment = sms_message[seg_len*i:seg_len*(i+1)]
+			segment += "(%d of %d)" % (i+1, chunks)
+			message_segments.append(segment)
+		return message_segments
 
 if __name__ == "__main__":
 	workers = []
