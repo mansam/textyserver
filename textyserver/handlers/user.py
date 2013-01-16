@@ -57,7 +57,7 @@ class UserHandler(RequestHandler):
 			raise NotFound("Invalid challenge code.")
 		user.is_active = True
 		user.put()
-		user.sms('Thanks for signing up with Texty! Text HELP for commands.')
+		user.sms('Thanks for signing up with Texty! Text HLP for commands.')
 
 		return response
 

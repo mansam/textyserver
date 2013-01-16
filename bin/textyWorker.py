@@ -206,9 +206,10 @@ class Worker(multiprocessing.Process):
 		return {'file_names':file_names, 'file_ids': file_ids}
 
 	def split_message(self, sms_message):
+		import math
 		message_segments = []
 		seg_len = MAX_MESSAGE_LENGTH - 20
-		chunks = len(sms_message)/seg_len
+		chunks = math.ceil(len(sms_message)/float(seg_len))
 		for i in range(0, chunks):
 			segment = sms_message[seg_len*i:seg_len*(i+1)]
 			segment += "(%d of %d)" % (i+1, chunks)
