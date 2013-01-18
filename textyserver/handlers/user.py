@@ -4,7 +4,6 @@ from textyserver.resources.user import TextyUser
 import logging
 import json
 import boto
-import urllib
 import requests
 import textyserver
 
@@ -62,6 +61,7 @@ class UserHandler(RequestHandler):
 		user.put()
 		user.sms('Thanks for signing up with Texty! Text HLP for commands.')
 
+		response.body = json.dumps(user.to_dict())
 		return response
 
 	def _put(self, request, response, id=None):
