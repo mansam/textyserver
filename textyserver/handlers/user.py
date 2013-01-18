@@ -9,8 +9,8 @@ import requests
 import textyserver
 
 log = logging.getLogger('texty.userHandler')
-AUTHCODE_URI = boto.config.get('texty', 'authcode_uri')
-REDIRECT_URI = boto.config.get('texty', 'redirect_uri')
+AUTHCODE_URI = boto.config.get('Texty', 'authcode_uri')
+REDIRECT_URI = boto.config.get('Texty', 'redirect_uri')
 
 
 class UserHandler(RequestHandler):
