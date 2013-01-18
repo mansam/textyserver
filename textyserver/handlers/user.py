@@ -9,6 +9,9 @@ import requests
 import textyserver
 
 log = logging.getLogger('texty.userHandler')
+AUTHCODE_URI = boto.config.get('texty', 'authcode_uri')
+REDIRECT_URI = boto.config.get('texty', 'redirect_uri')
+
 
 class UserHandler(RequestHandler):
 
@@ -45,7 +48,7 @@ class UserHandler(RequestHandler):
 					except Exception:
 						# deal with twilio errors
 						raise
-					raise TemporaryRedirect('http://www.buildanavy.com/authcode.html')
+					raise TemporaryRedirect(AUTHCODE_URI)
 		return response
 
 	def _post(self, request, response, id=None):
@@ -84,7 +87,7 @@ def getLiveConnectTokens(auth_code):
 	base_url = "https://login.live.com/oauth20_token.srf"
 	params = {
 		"grant_type" : "authorization_code",
-		"redirect_uri" : "http://www.buildanavy.com/user/code",
+		"redirect_uri" : REDIRECT_URI,
 		"client_id": textyserver.CLIENT_ID,
 		"client_secret": textyserver.CLIENT_SECRET,
 		"code": auth_code
