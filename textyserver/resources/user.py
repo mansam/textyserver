@@ -4,6 +4,9 @@ from botoweb.db.property import StringProperty
 from botoweb.db.property import BooleanProperty
 from botoweb.db.property import DateTimeProperty
 from botoweb.db.property import ListProperty
+import requests
+import textyserver
+import liveconnect
 
 class TextyUser(User):
 
@@ -31,3 +34,10 @@ class TextyUser(User):
 		ret["phone"] = self.phone
 		ret["__id__"] = self.id
 		return ret
+
+	def refresh_authorization(self):
+		lc = liveconnect.connect()
+		response = lc.authorize(refresh_token=self.refresh_token, redirect_uri=textyserver.REDIRECT_URI)
+		self.refresh_token = response['refresh_token']
+		self.auth_token = response['access_token']
+		self.put()

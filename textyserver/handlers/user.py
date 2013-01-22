@@ -6,11 +6,10 @@ import json
 import boto
 import requests
 import textyserver
+from liveconnect.skydrive
 
 log = logging.getLogger('texty.userHandler')
-AUTHCODE_URI = boto.config.get('Texty', 'authcode_uri')
-REDIRECT_URI = boto.config.get('Texty', 'redirect_uri')
-
+sd = liveconnect.skydrive.connect_skydrive()
 
 class UserHandler(RequestHandler):
 
@@ -29,7 +28,7 @@ class UserHandler(RequestHandler):
 					user_params["phone"] = phone
 					user_params["email"] = email
 
-					resp = getLiveConnectTokens(auth_code)
+					resp = sd.authorize(auth_code=auth_code)
 					log.info(resp)
 	
 					user_params["auth_token"] = resp["access_token"]
@@ -47,15 +46,16 @@ class UserHandler(RequestHandler):
 					except Exception:
 						# deal with twilio errors
 						raise
-					raise TemporaryRedirect(AUTHCODE_URI)
+					raise TemporaryRedirect(textyserver.AUTHCODE_URI)
 		return response
 
 	def _post(self, request, response, id=None):
 		response.content_type = "application/json"
-		
+		challenge = request.params["challenge"]
 		try:
-			user = TextyUser.find(challenge=request.params["challenge"]).next()
+			user = TextyUser.find(challenge=challenge]).next()
 		except StopIteration:
+			log.exception('Invalid challenge code: %s' % challenge)
 			raise NotFound("Invalid challenge code.")
 		user.is_active = True
 		user.put()
@@ -83,16 +83,16 @@ class UserHandler(RequestHandler):
 
 		return response
 
-def getLiveConnectTokens(auth_code):
-	base_url = "https://login.live.com/oauth20_token.srf"
-	params = {
-		"grant_type" : "authorization_code",
-		"redirect_uri" : REDIRECT_URI,
-		"client_id": textyserver.CLIENT_ID,
-		"client_secret": textyserver.CLIENT_SECRET,
-		"code": auth_code
-	}
-	return requests.post(base_url, data=params, headers={"content-type":"application/x-www-form-urlencoded"}).json()
+# def getLiveConnectTokens(auth_code):
+# 	base_url = "https://login.live.com/oauth20_token.srf"
+# 	params = {
+# 		"grant_type" : "authorization_code",
+# 		"redirect_uri" : textyserver.REDIRECT_URI,
+# 		"client_id": textyserver.CLIENT_ID,
+# 		"client_secret": textyserver.CLIENT_SECRET,
+# 		"code": auth_code
+# 	}
+# 	return requests.post(base_url, data=params, headers={"content-type":"application/x-www-form-urlencoded"}).json()
 
 def createUser(params):
 	required_params = ["email", "phone", "auth_token", "refresh_token"]

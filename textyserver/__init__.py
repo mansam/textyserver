@@ -9,6 +9,9 @@ CLIENT_SECRET = boto.config.get("Skydrive", "client_secret")
 BITLY_UID = boto.config.get("bitly", "username")
 BITLY_API_KEY = boto.config.get("bitly", "api_key")
 
+AUTHCODE_URI = boto.config.get('Texty', 'authcode_uri')
+REDIRECT_URI = boto.config.get('Texty', 'redirect_uri')
+
 log = logging.getLogger('texty')
 bitly = Bitly(BITLY_UID, BITLY_API_KEY)
 
