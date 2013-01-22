@@ -143,15 +143,18 @@ class Worker(multiprocessing.Process):
 
 	@refresh
 	def choose_command(self, user, number):
-		return_msg = ""
+		return_msg = "Error: Invalid selection."
 		try:
 			selection = int(number)
-			if (0 < selection <= len(user.requested_files)):
-				return_msg = self.bitly_link(self.sd.get_share_link(user.requested_files[selection-1], access_token=user.auth_token))
-				user.requested_files = []
-				user.put()
 		except:
-			return_msg = "Error: Invalid selection"  
+			return return_msg
+
+		if (0 < selection <= len(user.requested_files)):
+			share_link = self.sd.get_share_link(user.requested_files[selection-1], access_token=user.auth_token)
+			return_msg = self.bitly_link(share_link)
+			user.requested_files = []
+			user.put()
+
 		return return_msg
 
 	@refresh
