@@ -25,7 +25,7 @@ def refresh(function):
 	"""
 
 	def wrapper(*args, **kwargs):
-		user = args[0]
+		user = args[1]
 		try:
 			return function(*args, **kwargs)
 		except:
@@ -147,7 +147,7 @@ class Worker(multiprocessing.Process):
 		try:
 			selection = int(number)
 			if (0 < selection <= len(user.requested_files)):
-				return_msg = self.bitly_link(self.sd.get_share_link(user.requested_files[selection-1]))
+				return_msg = self.bitly_link(self.sd.get_share_link(user.requested_files[selection-1], access_token=user.auth_token))
 				user.requested_files = []
 				user.put()
 		except:
