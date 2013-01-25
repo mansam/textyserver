@@ -19,7 +19,7 @@ class TextyUser(User):
 
 	def put(self):
 		if not self.username:
-			self.username = uuid.uuid()
+			self.username = uuid.uuid4()
 		return User.put(self)
 
 	def to_dict(self, *args, **kwargs):
