@@ -84,34 +84,34 @@ class Worker(multiprocessing.Process):
 
 				try:
 					user = TextyUser.find(phone=phone_num).next()
+					if user.is_active:
+						if command in self.VALID_COMMANDS:
+							self.log.info(command)
+							return_msg = self.VALID_COMMANDS[command](user, args)
 
-					if command in self.VALID_COMMANDS:
-						self.log.info(command)
-						return_msg = self.VALID_COMMANDS[command](user, args)
-
-					elif command.isdigit():
-						return_msg = self.choose_command(user, command)
-					else:
-						return_msg = 'Error: Command not found or incorrectly formated'
-					try:
-						self.log.info(return_msg)
-						if len(return_msg) >= MAX_MESSAGE_LENGTH:
-							messages = self.split_message(return_msg)
-							for message in messages:
-								user.sms(message)
+						elif command.isdigit():
+							return_msg = self.choose_command(user, command)
 						else:
-							user.sms(return_msg)
-					except:
-						# failed to send message
-						self.log.exception('Failed sending sms to %s.' % phone_num)
+							return_msg = 'Error: Command not found or incorrectly formated'
+						try:
+							self.log.info(return_msg)
+							if len(return_msg) >= MAX_MESSAGE_LENGTH:
+								messages = self.split_message(return_msg)
+								for message in messages:
+									user.sms(message)
+							else:
+								user.sms(return_msg)
+						except:
+							# failed to send message
+							self.log.exception('Failed sending sms to %s.' % phone_num)
 
 				except StopIteration:
 					self.log.info("Didn't recognize number: %s" % phone_num)
 				except:
 					import traceback
 					traceback.print_exc()
-				
-				self.text_queue.delete_message(msg)
+				finally:
+					self.text_queue.delete_message(msg)
 			else:
 				if self.backoff_level < BACKOFF_MAX:
 					self.backoff_level += BACKOFF_STEP
