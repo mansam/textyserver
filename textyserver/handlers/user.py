@@ -28,7 +28,7 @@ class UserHandler(RequestHandler):
 					user_params["phone"] = phone
 					user_params["email"] = email
 
-					resp = sd.authorize(auth_code=auth_code)
+					resp = sd.authorize(auth_code=auth_code, redirect_uri=textyserver.REDIRECT_URI)
 					log.info(resp)
 	
 					user_params["auth_token"] = resp["access_token"]
