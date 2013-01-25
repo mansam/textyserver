@@ -59,6 +59,7 @@ class Worker(multiprocessing.Process):
 			"note": self.note_command,
 			"n": self.note_command,
 			"?": self.help_command,
+			"unsub": self.unsubscribe_command,
 			"hlp": self.help_command
 		}	
 		
@@ -117,6 +118,11 @@ class Worker(multiprocessing.Process):
 					self.backoff_level += BACKOFF_STEP
 				self.log.info("Sleeping %d seconds." % self.backoff_level)
 				time.sleep(self.backoff_level)
+
+	def unsubscribe_command(self, user, args):
+		return_msg = "You've been unsubscribed. Thanks for using Texty!"
+		user.delete()
+		return return_msg
 
 	@refresh
 	def download_command(self, user, args):
