@@ -138,12 +138,13 @@ class Worker(multiprocessing.Process):
 
 	def download(self, user, link, upload_name):
 		downloaded_file = urllib2.urlopen(link)
-		with downloaded_file:
-			try:
-				self.sd.put(name=upload_name, fobj=downloaded_file, access_token=user.auth_token)
-				user.sms('%s successfully downloaded into your SkyDrive!' % upload_name)
-			except:
-				user.sms("Sorry, we couldn't download %s into your SkyDrive." % upload_name)
+		try:
+			self.sd.put(name=upload_name, fobj=downloaded_file, access_token=user.auth_token)
+			user.sms('%s successfully downloaded into your SkyDrive!' % upload_name)
+		except:
+			user.sms("Sorry, we couldn't download %s into your SkyDrive." % upload_name)
+		finally:
+			downloaded_file.close()
 
 	def shorten_link(self, link):
 		shortener = Googl()
