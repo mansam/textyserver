@@ -7,6 +7,7 @@ from botoweb.db.property import ListProperty
 import requests
 import textyserver
 import liveconnect
+import uuid
 
 class TextyUser(User):
 
@@ -17,7 +18,8 @@ class TextyUser(User):
 	challenge = StringProperty(verbose_name='Confirmation Challenge')
 
 	def put(self):
-		self.username = self.email
+		if not self.username:
+			self.username = uuid.uuid()
 		return User.put(self)
 
 	def to_dict(self, *args, **kwargs):
