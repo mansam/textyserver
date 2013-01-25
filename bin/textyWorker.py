@@ -4,6 +4,7 @@ from time import localtime, strftime
 from pyshorturl import Googl
 import liveconnect.skydrive
 import multiprocessing
+import threading
 import urllib2
 import logging
 import boto
@@ -50,8 +51,8 @@ class Worker(multiprocessing.Process):
 			"find": self.ls_command,
 			"f": self.ls_command,
 			"ls": self.ls_command,
-			# "download": self.download_command,
-			# "dl": self.download_command,
+			"download": self.download_command,
+			"dl": self.download_command,
 			"space": self.quota_command,
 			"quota": self.quota_command,
 			"q": self.quota_command,
@@ -124,14 +125,25 @@ class Worker(multiprocessing.Process):
 		user.delete()
 		return return_msg
 
-	@refresh
 	def download_command(self, user, args):
-		split_url = args.split('/') 
+		split_url = args.split('/')
 		upload_name = split_url[len(split_url)-1] #name it will be given on the skydrive
-		downloaded_file = urllib2.urlopen(args)
-		downloaded_file.close()
-		self.sd.put(name=upload_name, fobj=downloaded_file, access_token=user.auth_token)
-		return "Downloaded %s to skydrive." % upload_name
+		self.log.info("Trying to download %s..." % args)
+		try:
+			download_thread = threading.Thread(target=self.download, args=[user, args, upload_name])
+			download_thread.start()
+			return "Started downloading %s to SkyDrive." % upload_name
+		except:
+			return "Sorry, we couldn't download %s to SkyDrive." % upload_name
+
+	def download(self, user, link, upload_name):
+		downloaded_file = urllib2.urlopen(link)
+		with downloaded_file:
+			try:
+				self.sd.put(name=upload_name, fobj=downloaded_file, access_token=user.auth_token)
+				user.sms('%s successfully downloaded into your SkyDrive!' % upload_name)
+			except:
+				user.sms("Sorry, we couldn't download %s into your SkyDrive." % upload_name)
 
 	def shorten_link(self, link):
 		shortener = Googl()
@@ -206,7 +218,7 @@ class Worker(multiprocessing.Process):
 		return menu
 
 	def help_command(self, user, args):
-		help_msg = "find <files> - get link\nnote <some text> - write note\ndl <remote file link> - downld file\nspace - get remaining space"
+		help_msg = "find <files> - get link\nnote <some text> - write note\nspace - get remaining space\nunsub - delete texty acc"
 		return help_msg
 
 	@refresh
