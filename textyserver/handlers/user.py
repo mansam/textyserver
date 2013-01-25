@@ -6,7 +6,7 @@ import json
 import boto
 import requests
 import textyserver
-from liveconnect.skydrive
+import liveconnect.skydrive 
 
 log = logging.getLogger('texty.userHandler')
 sd = liveconnect.skydrive.connect_skydrive()
@@ -53,7 +53,7 @@ class UserHandler(RequestHandler):
 		response.content_type = "application/json"
 		challenge = request.params["challenge"]
 		try:
-			user = TextyUser.find(challenge=challenge]).next()
+			user = TextyUser.find(challenge=challenge).next()
 		except StopIteration:
 			log.exception('Invalid challenge code: %s' % challenge)
 			raise NotFound("Invalid challenge code.")
