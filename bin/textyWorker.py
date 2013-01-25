@@ -129,6 +129,8 @@ class Worker(multiprocessing.Process):
 		split_url = args.split('/')
 		upload_name = split_url[len(split_url)-1] #name it will be given on the skydrive
 		self.log.info("Trying to download %s..." % args)
+		if not args.startswith("http://"):
+			args = "http://" + args
 		try:
 			download_thread = threading.Thread(target=self.download, args=[user, args, upload_name])
 			download_thread.start()
