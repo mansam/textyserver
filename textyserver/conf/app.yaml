@@ -1,4 +1,4 @@
 format: json
-# allow_origin: "*"
+allow_origin: "http://trytexty.com,http://www.trytexty.com"
 # allow_headers: X-Api-Version
 # expose_headers:
